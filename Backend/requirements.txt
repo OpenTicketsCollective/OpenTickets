@@ -1,1 +1,1 @@
-# Add your Python package requirements here
+mysql-connector-python>=9.0.0,<10.0.0

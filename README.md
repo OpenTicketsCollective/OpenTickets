@@ -7,9 +7,17 @@
 > Development Status - N/A
 
 Implemented Features 
-- A proper Readme file... We gotta up these numbers
+TBD
 
 Installation
 `pip install requirements.txt`
 For contributors also run:
 `pip install requirements-dev.txt`
+
+
+TESTING
+- Make a .venv
+`cd ./Backend`
+`pip install requirements.txt`
+`pip install requirements-dev.txt`
+`pytest`

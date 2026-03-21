@@ -1,0 +1,144 @@
+:root {
+	--bg: #f6f8fa;
+	--card: #ffffff;
+	--accent: #2b7cff;
+	--muted: #666;
+}
+
+* {
+	box-sizing: border-box;
+	font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: #111;
+	-webkit-font-smoothing: antialiased;
+}
+
+header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #0a2540;
+	color: #fff;
+	padding: 12px 20px;
+}
+
+header h1 {
+	margin: 0;
+	font-size: 18px;
+}
+
+nav a {
+	color: #cfe5ff;
+	margin-left: 12px;
+	text-decoration: none;
+}
+
+main {
+	padding: 20px;
+	max-width: 980px;
+	margin: 0 auto;
+}
+
+.card {
+	background: var(--card);
+	padding: 16px;
+	border-radius: 6px;
+	margin-bottom: 16px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+label {
+	display: block;
+	margin: 8px 0;
+}
+
+input,
+textarea,
+select {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font: inherit;
+}
+
+textarea {
+	min-height: 100px;
+}
+
+.actions {
+	margin-top: 10px;
+}
+
+button {
+	background: var(--accent);
+	border: none;
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.muted {
+	color: var(--muted);
+	font-size: 13px;
+}
+
+.row {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.col {
+	flex: 1;
+}
+
+.hidden {
+	display: none;
+}
+
+.list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.list li {
+	padding: 8px;
+	border-bottom: 1px solid #f1f1f1;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th,
+td {
+	padding: 8px;
+	border-bottom: 1px solid #eee;
+	text-align: left;
+}
+
+.table-controls {
+	margin: 8px 0;
+}
+
+@media (max-width: 600px) {
+	.row {
+		flex-direction: column;
+	}
+
+	header {
+		padding: 10px;
+	}
+
+	main {
+		padding: 12px;
+	}
+}

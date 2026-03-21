@@ -1,1 +1,2 @@
 # Add your Python package requirements here
+pip install fastapi uvicorn python-multipart

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reset OpenTickets demo data</title>
+  <style>body{font-family:Segoe UI,Roboto,Arial,sans-serif;padding:20px;background:#f6f8fa}button{padding:8px 12px}</style>
+</head>
+<body>
+  <h2>Reset OpenTickets demo data</h2>
+  <p>This page will remove the demo data key <code>opentickets_db_v1</code> from <code>localStorage</code>.</p>
+  <button id="run">Clear demo data</button>
+  <div id="out" style="margin-top:12px;color:#333"></div>
+  <p style="margin-top:18px"><a href="../index.html">Open the demo UI</a></p>
+
+  <script>
+  (function(){
+    const DB_KEY = 'opentickets_db_v1'
+    document.getElementById('run').addEventListener('click', ()=>{
+      localStorage.removeItem(DB_KEY)
+      document.getElementById('out').textContent = 'Removed localStorage key "' + DB_KEY + '". The demo will re-seed when needed.'
+    })
+  })()
+  </script>
+</body>
+</html>

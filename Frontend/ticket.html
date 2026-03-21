@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OpenTickets — Ticket</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <!-- Page header and navigation -->
+  <header>
+    <h1>Ticket</h1>
+    <nav>
+      <a href="index.html">Submit Ticket</a>
+      <a href="staff.html">Staff Dashboard</a>
+    </nav>
+  </header>
+  <main>
+    <!-- Ticket detail card. JavaScript populates the ticket based on the
+         `id` query parameter (e.g. `ticket.html?id=3`). Elements:
+           - `#tTitle`: visible ticket title and id
+           - `#tMeta`: summary line (priority, status, creator, time)
+           - `#tDesc`: long description
+           - `#assignTo`: dropdown of staff users to assign the ticket
+           - `#status`: ticket status selector
+           - `#saveTicket`: saves assignment/status changes
+           - `#comments`: list of comments
+           - `#commentForm`: add a new comment (author + message)
+         All interactions are handled by `assets/app.js`. -->
+    <section class="card" id="ticketCard">
+      <h2 id="tTitle">Ticket</h2>
+      <div id="tMeta" class="muted"></div>
+      <p id="tDesc"></p>
+
+      <div class="row">
+        <label>
+          Assign to:
+          <select id="assignTo"></select>
+        </label>
+
+        <label>
+          Status:
+          <select id="status">
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </label>
+
+        <!-- Save assignment/status changes -->
+        <button id="saveTicket">Save</button>
+      </div>
+
+      <h3>Comments</h3>
+      <!-- Comments are appended here by the JS -->
+      <ul id="comments" class="list"></ul>
+
+      <!-- Add a new comment to the ticket -->
+      <form id="commentForm">
+        <label>
+          Your name
+          <input name="author">
+        </label>
+
+        <label>
+          Message
+          <textarea name="message" required></textarea>
+        </label>
+
+        <div class="actions">
+          <button>Add Comment</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

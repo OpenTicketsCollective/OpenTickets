@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OpenTickets — Admin</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <!-- Header and navigation for admin views -->
+  <header>
+    <h1>OpenTickets — Admin</h1>
+    <nav>
+      <!-- Link back to public submission page -->
+      <a href="index.html">Submit Ticket</a>
+      <!-- Link to staff dashboard -->
+      <a href="staff.html">Staff Dashboard</a>
+      <!-- Current admin dashboard page -->
+      <a href="admin_page.html">Admin Dashboard</a>
+    </nav>
+  </header>
+  <main>
+    <!-- Login card: authenticates staff users for the demo.
+         Handled by `assets/app.js` which places a lightweight session in
+         `sessionStorage` on success. Default demo accounts exist in the
+         localStorage seed (see README). -->
+<section class="card" id="loginCard">
+
+<h2>Admin Login</h2>
+
+<form id="loginForm">
+
+<label>
+Username
+<input name="username" required>
+</label>
+
+<label>
+Password
+<input name="password" type="password" required>
+</label>
+
+<div class="actions">
+<button>Login</button>
+</div>
+
+</form>
+
+<div id="loginMsg" class="muted"></div>
+
+</section>
+    <!-- Admin dashboard content goes here. For the demo, this is a placeholder
+         page with no functionality, but in a real app this would contain
+         admin-specific features like user management, system settings, etc. -->
+<section class="card hidden" id="dashboard">
+    <!--this this dashboard will give admins the ability to control over accounts, ability to change passwords, user creation, user deletion, session management-->
+      <h2>Admin Dashboard</h2>
+        <h1>Admin Control Panel</h1>
+<section>
+
+<h2>Create User</h2>
+
+<form id="createUserForm">
+<input name="email" placeholder="Email" required>
+<input name="first_name" placeholder="First Name" required>
+<input name="last_name" placeholder="Last Name" required>
+<input name="password" placeholder="Password" type="password" required>
+
+<select name="access_level">
+<option value="tech">Tech</option>
+<option value="admin">Admin</option>
+</select>
+
+<button>Create User</button>
+</form>
+</section>
+<hr>
+
+<section>
+
+<h2>User Accounts</h2>
+<table border="1">
+<thead>
+<tr>
+<th>ID</th>
+<th>Email</th>
+<th>Name</th>
+<th>Role</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="userTable"></tbody>
+
+</table>
+
+</section>
+
+<hr>
+
+<section>
+
+<h2>Active Sessions</h2>
+
+<table border="1">
+<thead>
+<tr>
+<th>Session ID</th>
+<th>User ID</th>
+<th>Created</th>
+<th>Expires</th>
+</tr>
+</thead>
+
+<tbody id="sessionTable"></tbody>
+</table>
+  </section>
+  </main>
+    <script src="assets/app.js"></script>
+    <script src="assets/admin_panel.js"></script>
+</body>
+</html>

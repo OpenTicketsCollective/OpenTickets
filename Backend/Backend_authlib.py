@@ -54,14 +54,30 @@ def logout_session(token):
     execute_query("Update Sessions SET expire_time = %s WHERE session_token = %s", (time.strftime('%Y-%m-%d %H:%M:%S'), token))
 
 
+def Checkauthlevel(user_id, permitted_access_levels):
+    if not isinstance(user_id, int):
+        raise TypeError(f"user_id must be int, got {type(user_id).__name__}")
+    if isinstance(permitted_access_levels, str):
+        permitted_access_levels = [permitted_access_levels]
+    if not isinstance(permitted_access_levels, (list, tuple, set)):
+        raise TypeError(f"permitted_access_levels must be list, tuple, or set, got {type(permitted_access_levels).__name__}")
+
+    user_access_level = execute_query("SELECT access_level FROM User WHERE user_id = %s", (user_id,))
+    if not user_access_level:
+        return False, None
+
+    access_level = user_access_level[0]['access_level']
+    return access_level in permitted_access_levels, access_level
+
+
 def create_user(token, ip_address, email, password, access_level, first_name, last_name, force_password_change):
     valid, requestedby = validate_session(token, ip_address)
     if not valid:
         # session invalid; reject the operation
         return False, "Invalid session"
-    
-    requestedby_access_level = execute_query("select access_level from User where user_id = %s", (requestedby,))
-    if requestedby_access_level[0]['access_level'] != "Admin":
+
+    authorized, _ = Checkauthlevel(requestedby, ["Admin"])
+    if not authorized:
         # user doesn't have permissions to create accounts; reject the operation
         return False, "Insufficient permissions"
     

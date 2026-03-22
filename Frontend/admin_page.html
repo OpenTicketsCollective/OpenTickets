@@ -20,28 +20,21 @@
     </nav>
   </header>
   <main>
-    <!-- Login card: authenticates staff users for the demo.
-         Handled by `assets/app.js` which places a lightweight session in
-         `sessionStorage` on success. Default demo accounts exist in the
-         localStorage seed (see README). -->
+
 <section class="card" id="loginCard">
 
 <h2>Admin Login</h2>
 
 <form id="loginForm">
 
-<label>
-Username
-<input name="username" required>
-</label>
+<label>Username</label>
+<input type="text" name="username" required>
 
-<label>
-Password
-<input name="password" type="password" required>
-</label>
+<label>Password</label>
+<input type="password" name="password" required>
 
 <div class="actions">
-<button>Login</button>
+<button type="submit">Login</button>
 </div>
 
 </form>
@@ -49,35 +42,36 @@ Password
 <div id="loginMsg" class="muted"></div>
 
 </section>
-    <!-- Admin dashboard content goes here. For the demo, this is a placeholder
-         page with no functionality, but in a real app this would contain
-         admin-specific features like user management, system settings, etc. -->
-<section class="card hidden" id="dashboard">
-    <!--this this dashboard will give admins the ability to control over accounts, ability to change passwords, user creation, user deletion, session management-->
+
+<section class="card" id="dashboard">
+
       <h2>Admin Dashboard</h2>
         <h1>Admin Control Panel</h1>
 <section>
-
 <h2>Create User</h2>
-
-<form id="createUserForm">
-<input name="email" placeholder="Email" required>
-<input name="first_name" placeholder="First Name" required>
-<input name="last_name" placeholder="Last Name" required>
-<input name="password" placeholder="Password" type="password" required>
-
-<select name="access_level">
-<option value="tech">Tech</option>
-<option value="admin">Admin</option>
+  <form id="createUserForm">
+  <input name="email" placeholder="Email" required>
+  <input name="first_name" placeholder="First Name" required>
+  <input name="last_name" placeholder="Last Name" required>
+  <input name="password" placeholder="Password" type="password" required>
+  <select name="access_level">
+  <option value="Admin">Admin</option>
+  <option value="L1">L1</option>
+  <option value="L2">L2</option>
 </select>
 
+<label>
+Force Password Change
+<input type="checkbox" name="force_password_change">
+</label>
+
 <button>Create User</button>
+
 </form>
 </section>
-<hr>
+
 
 <section>
-
 <h2>User Accounts</h2>
 <table border="1">
 <thead>
@@ -116,7 +110,7 @@ Password
 </table>
   </section>
   </main>
-    <script src="assets/app.js"></script>
     <script src="assets/admin_panel.js"></script>
+
 </body>
 </html>

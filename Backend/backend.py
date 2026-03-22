@@ -1,21 +1,26 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from Backend_authlib import login_user, new_session, validate_session, create_user
+from Backend_dblib import execute_query
 
 app = FastAPI()
 
-# allows the admin page.html to communicate with the backend server which will be a middle man for communication with db
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://127.0.0.1:8000",
+        "http://localhost:8000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+class LoginData(BaseModel):
+    email: str
+    password: str
 
-users = []
-sessions = []
 
 class UserCreate(BaseModel):
     email: str
@@ -23,48 +28,118 @@ class UserCreate(BaseModel):
     last_name: str
     password: str
     access_level: str
+    force_password_change: bool = False
+
 
 class UserID(BaseModel):
     userId: int
 
+@app.post("/login")
+def login(data: LoginData, request: Request):
 
-@app.get("/admin/user")
-def get_users():
-    return users
+    try:
+        success, user_id = login_user(data.email, data.password)
+    except Exception as e:
+        print("LOGIN ERROR:", e)
+        return {"status": False, "message": "Login failed"}
 
+    if not success:
+        return {"status": False, "message": "Invalid credentials"}
 
-@app.post("/admin/createuser")
-def create_user(user: UserCreate):
+    try:
+        token = new_session(
+            user_id,
+            request.client.host,
+            request.headers.get("user-agent")
+        )
+    except Exception as e:
+        print("SESSION ERROR:", e)
+        return {"status": False, "message": "Session creation failed"}
 
-    new_user = {
-        "user_id": len(users) + 1,
-        "email": user.email,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "role": "staff",
-        "access_level": user.access_level
+    return {
+        "status": True,
+        "session_token": token,
+        "user_id": user_id
     }
 
-    users.append(new_user)
+@app.get("/admin/users")
+def get_users():
 
-    return {"status": "user created", "user": new_user}
+    try:
+        users = execute_query("""
+            SELECT user_id, email, first_name, last_name, access_level
+            FROM User
+        """)
+    except Exception as e:
+        print("USER FETCH ERROR:", e)
+        return []
 
+    return users
+
+@app.post("/admin/createuser")
+def admin_create_user(data: UserCreate, request: Request):
+    try:
+        token = request.headers.get("Authorization")
+        if not token:
+            return {"status": False, "message": "Missing session token"}
+        success, msg = create_user(
+            token,
+            request.client.host,
+            data.email,
+            data.password,
+            data.access_level,
+            data.first_name,
+            data.last_name,
+            data.force_password_change
+        )
+        return {
+            "status": success,
+            "message": msg
+        }
+    except Exception as e:
+
+        print("CREATE USER ERROR:", e)
+
+        return {
+            "status": False,
+            "message": "Server error creating user"
+        }
 
 @app.post("/admin/deleteuser")
 def delete_user(data: UserID):
 
-    global users
-    users = [u for u in users if u["user_id"] != data.userId]
+    try:
+        execute_query(
+            "DELETE FROM User WHERE user_id = %s",
+            (data.userId,)
+        )
+    except Exception as e:
+        print("DELETE ERROR:", e)
+        return {"status": False}
 
-    return {"status": "user deleted"}
-
+    return {"status": True}
 
 @app.post("/admin/resetpassword")
 def reset_password(data: UserID):
 
-    return {"status": "password reset", "user": data.userId}
-
+    return {
+        "status": True,
+        "message": "Password reset placeholder"
+    }
 
 @app.get("/admin/sessions")
 def get_sessions():
+
+    try:
+        sessions = execute_query("""
+            SELECT session_token AS session_id,
+                   user_id,
+                   created_time,
+                   expire_time
+            FROM Sessions
+        """)
+    except Exception as e:
+        print("SESSION FETCH ERROR:", e)
+        return []
+
     return sessions

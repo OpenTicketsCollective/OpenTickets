@@ -8,68 +8,46 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Header and navigation for staff views -->
+<!-- This is the navigation headers for all the pages that are available to staff members within the OpenTickets system -->
   <header>
     <h1>OpenTickets — Staff</h1>
     <nav>
-      <!-- Link back to public submission page -->
       <a href="index.html">Submit Ticket</a>
-      <!-- Current staff dashboard page -->
       <a href="staff.html">Staff Dashboard</a>
-      <!-- Link to admin dashboard -->
       <a href="admin_page.html">Admin Dashboard</a>
     </nav>
   </header>
   <main>
-    <!-- Login card: authenticates staff users for the demo.
-         Handled by `assets/app.js` which places a lightweight session in
-         `sessionStorage` on success. Default demo accounts exist in the
-         localStorage seed (see README). -->
     <section class="card" id="loginCard">
       <h2>Staff Login</h2>
       <form id="loginForm">
         <label>
-          Username
-          <input name="username" required>
+          Email
+          <input name="email" type="email" required>
         </label>
 
         <label>
           Password
           <input name="password" type="password" required>
         </label>
-
         <div class="actions">
           <button>Login</button>
         </div>
       </form>
-
-      <!-- Feedback for login attempts appears here -->
-      <div id="loginMsg" class="muted"></div>
+      <div id="loginMsg" class="muted">Please login with your staff account.</div>
     </section>
-
-    <!-- Dashboard: appears after a successful login. Contains:
-         - `#ticketChart`: pie chart showing urgent vs regular open tickets
-         - Shortcuts: buttons to jump to oldest urgent or unassigned ticket
-         - `#sortBy`: select to change ticket table ordering
-         - `#ticketsTable`: list of tickets (rows populated by JS)
-         - `#dashboardMsg`: general status messages
-         The section is initially hidden and revealed by the login flow. -->
     <section class="card hidden" id="dashboard">
       <div class="row">
         <div class="col">
           <h3>Tickets Overview</h3>
           <canvas id="ticketChart" width="200" height="100"></canvas>
         </div>
-
         <div class="col">
           <h3>Shortcuts</h3>
-          <!-- Jump to oldest urgent open ticket -->
           <button id="oldestUrgent">Oldest Urgent</button>
-          <!-- Jump to oldest unassigned open ticket -->
           <button id="unassigned">Unassigned</button>
         </div>
       </div>
-
       <h3>Tickets</h3>
       <div class="table-controls">
         <label>
@@ -80,8 +58,6 @@
           </select>
         </label>
       </div>
-
-      <!-- Tickets table: rows are created dynamically by `assets/app.js` -->
       <table id="ticketsTable">
         <thead>
           <tr>
@@ -94,11 +70,9 @@
         </thead>
         <tbody></tbody>
       </table>
-
       <div id="dashboardMsg" class="muted"></div>
     </section>
   </main>
-
   <script src="assets/app.js"></script>
 </body>
 </html>

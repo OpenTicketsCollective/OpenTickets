@@ -7,44 +7,34 @@
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <!-- Header and navigation for admin views -->
+<!-- This is the navigation headers for all the pages that are within the OpenTickets systme -->
   <header>
     <h1>OpenTickets — Admin</h1>
     <nav>
-      <!-- Link back to public submission page -->
       <a href="index.html">Submit Ticket</a>
-      <!-- Link to staff dashboard -->
       <a href="staff.html">Staff Dashboard</a>
-      <!-- Current admin dashboard page -->
       <a href="admin_page.html">Admin Dashboard</a>
     </nav>
   </header>
   <main>
 
+<!-- This is the login form that will prompt all admins to log in whenever they want to access their dashboard -->    
 <section class="card" id="loginCard">
-
 <h2>Admin Login</h2>
-
 <form id="loginForm">
-
 <label>Username</label>
 <input type="text" name="username" required>
-
 <label>Password</label>
 <input type="password" name="password" required>
-
 <div class="actions">
 <button type="submit">Login</button>
 </div>
-
 </form>
-
 <div id="loginMsg" class="muted"></div>
-
 </section>
 
+<!-- This is the main admin dashboard content that will be displayed after a successful login, in this section admins can manage user accounts and sessions -->
 <section class="card" id="dashboard">
-
       <h2>Admin Dashboard</h2>
         <h1>Admin Control Panel</h1>
 <section>
@@ -59,18 +49,15 @@
   <option value="L1">L1</option>
   <option value="L2">L2</option>
 </select>
-
 <label>
 Force Password Change
 <input type="checkbox" name="force_password_change">
 </label>
-
 <button>Create User</button>
-
 </form>
 </section>
 
-
+<!-- This is the section of the admin dashboard that allows admins to view and manage user accounts, including creating new users, deleting existing users, and resetting user passwords. -->
 <section>
 <h2>User Accounts</h2>
 <table border="1">
@@ -83,19 +70,13 @@ Force Password Change
 <th>Status</th>
 </tr>
 </thead>
-
 <tbody id="userTable"></tbody>
-
 </table>
-
 </section>
-
 <hr>
-
+<!-- This is the section for managing active user sessions -->
 <section>
-
 <h2>Active Sessions</h2>
-
 <table border="1">
 <thead>
 <tr>
@@ -105,12 +86,10 @@ Force Password Change
 <th>Expires</th>
 </tr>
 </thead>
-
 <tbody id="sessionTable"></tbody>
 </table>
   </section>
   </main>
     <script src="assets/admin_panel.js"></script>
-
 </body>
 </html>

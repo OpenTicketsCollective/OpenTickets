@@ -7,40 +7,28 @@
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <!-- Site header: brand and primary navigation -->
   <header>
     <h1>OpenTickets</h1>
     <nav>
-      <!-- Public ticket submission page -->
       <a href="index.html">Submit Ticket</a>
-      <!-- Staff-only dashboard (requires login) -->
       <a href="staff.html">Staff Dashboard</a>
     </nav>
   </header>
 
+<!-- This is the section for submitting a new ticket if the user has an issue-->
   <main>
-    <!-- Ticket submission card: users report incidents here -->
     <section class="card">
       <h2>Report an Issue</h2>
-      <!-- The form is handled by `assets/app.js` (localStorage demo).
-           Fields:
-             - `title` (short summary, required)
-             - `description` (detailed info, required)
-             - `priority` (regular or urgent)
-             - `creatorName` / `creatorEmail` (optional contact info)
-           On successful submit the page shows a message in `#submitMsg` and
-           the recent tickets list is refreshed. -->
       <form id="ticketForm">
+<!-- This is the form for submitting a new ticket -->
         <label>
           Title
           <input name="title" required maxlength="100">
         </label>
-
         <label>
           Description
           <textarea name="description" required></textarea>
         </label>
-
         <label>
           Priority
           <select name="priority">
@@ -48,33 +36,26 @@
             <option value="urgent">Urgent</option>
           </select>
         </label>
-
         <label>
           Your name
           <input name="creatorName">
         </label>
-
         <label>
           Your email
           <input name="creatorEmail" type="email">
         </label>
-
         <div class="actions">
           <button type="submit">Submit Ticket</button>
         </div>
       </form>
-
-      <!-- Submission feedback appears here -->
       <div id="submitMsg" class="muted"></div>
     </section>
-
-    <!-- Recent tickets (populated by `assets/app.js`) -->
+<!-- This is the section for displaying the most recent tickets -->
     <section class="card">
       <h3>Recent Tickets</h3>
       <ul id="recentTickets" class="list"></ul>
     </section>
   </main>
-
   <script src="assets/app.js"></script>
 </body>
 </html>

@@ -7,26 +7,17 @@
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <!-- Page header and navigation -->
+<!-- This is the navigation headers for all the pages that are available to users and techs within the OpenTickets system -->
   <header>
-    <h1>Ticket</h1>
+    <h1>Ticket Details</h1>
     <nav>
       <a href="index.html">Submit Ticket</a>
       <a href="staff.html">Staff Dashboard</a>
     </nav>
   </header>
+
+<!-- This is the main content of the ticket details page, where users and techs can view the details of a specific ticket, including its title, description, status, assigned tech, and any comments or updates related to the ticket. -->
   <main>
-    <!-- Ticket detail card. JavaScript populates the ticket based on the
-         `id` query parameter (e.g. `ticket.html?id=3`). Elements:
-           - `#tTitle`: visible ticket title and id
-           - `#tMeta`: summary line (priority, status, creator, time)
-           - `#tDesc`: long description
-           - `#assignTo`: dropdown of staff users to assign the ticket
-           - `#status`: ticket status selector
-           - `#saveTicket`: saves assignment/status changes
-           - `#comments`: list of comments
-           - `#commentForm`: add a new comment (author + message)
-         All interactions are handled by `assets/app.js`. -->
     <section class="card" id="ticketCard">
       <h2 id="tTitle">Ticket</h2>
       <div id="tMeta" class="muted"></div>
@@ -37,7 +28,7 @@
           Assign to:
           <select id="assignTo"></select>
         </label>
-
+<!-- This is the section for managing the ticket's status and assignment, allowing techs to assign the ticket to themselves or other techs, and update the ticket's status as it progresses through the resolution process. -->
         <label>
           Status:
           <select id="status">
@@ -46,27 +37,20 @@
             <option value="resolved">Resolved</option>
           </select>
         </label>
-
-        <!-- Save assignment/status changes -->
         <button id="saveTicket">Save</button>
       </div>
-
+<!-- This is the section for displaying and managing comments on a ticket, allowing users and techs to communicate about the ticket's progress and any updates or issues that arise. -->
       <h3>Comments</h3>
-      <!-- Comments are appended here by the JS -->
       <ul id="comments" class="list"></ul>
-
-      <!-- Add a new comment to the ticket -->
       <form id="commentForm">
         <label>
           Your name
           <input name="author">
         </label>
-
         <label>
           Message
           <textarea name="message" required></textarea>
         </label>
-
         <div class="actions">
           <button>Add Comment</button>
         </div>

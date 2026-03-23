@@ -1,174 +1,131 @@
-// Simple localStorage-backed demo backend for OpenTickets
-(function(){
-  const DB_KEY = 'opentickets_db_v1'
+//This is the main JavaScript file for the OpenTickets frontend application. It handles user authentication, ticket management, and interaction with the backend API. The code is structured to listen for DOMContentLoaded events to initialize event listeners for forms and buttons, and it defines functions to load tickets, add comments, and manage user sessions. The API endpoint is set to "http://
+const API = "http://127.0.0.1:8000";
 
-  function now(){return new Date().toISOString()}
+//These functions get the session info through session storage and the IP addressed used for the API calls.
+function getToken() { return sessionStorage.getItem("session_token"); }
+function getIP() { return "127.0.0.1"; }
 
-  function readDB(){
-    const raw = localStorage.getItem(DB_KEY)
-    if(!raw) return seedData()
-    try{return JSON.parse(raw)}catch(e){return seedData()}
+//DomContent loaded event listener that is used to initialize the event listeners for the login form and ticket creation form that obtains form data (username/email and password) and sends a login request.
+document.addEventListener("DOMContentLoaded", () => {
+  const loginForm = document.getElementById("loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const res = await fetch(API + "/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.get("username"),
+          password: form.get("password")
+        })
+      });
+      const data = await res.json();
+      if (data.status) {
+        sessionStorage.setItem("session_token", data.session_token);
+        sessionStorage.setItem("user_id", data.user_id);
+        document.getElementById("loginCard").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        loadTickets();
+      } else {
+        alert("Login failed: " + (data.message || ""));
+      }
+    });
   }
-
-  function writeDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)) }
-
-  function seedData(){
-    const db = {
-      users: [
-        {username:'tech1', password:'password', role:'tech', display:'Tech One'},
-        {username:'admin', password:'password', role:'admin', display:'Administrator'}
-      ],
-      tickets: [
-        {id:1,title:'Email not sending',description:'Unable to send external email',priority:'urgent',assignedTo:null,status:'open',createdAt:now(),creatorName:'Alice',comments:[]},
-        {id:2,title:'Printer jam',description:'Paper jam on floor 3 printer',priority:'regular',assignedTo:'tech1',status:'open',createdAt:now(),creatorName:'Bob',comments:[]}
-      ],
-      nextId:3
-    }
-    writeDB(db)
-    return db
+//This is the ticket creation form event listener that obtains form data through the form and sends a request to the backend API to create a new ticket.
+  const ticketForm = document.getElementById("ticketForm");
+  if (ticketForm) {
+    ticketForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const res = await fetch(API + "/tickets/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: getToken(),
+          ip_address: getIP(),
+          title: form.get("title"),
+          description: form.get("description")
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Ticket created successfully");
+        form.reset();
+        loadTickets();
+      } else {
+        alert("Error creating ticket: " + (data.message || ""));
+      }
+    });
   }
-
-  // Public API
-  window.OT = {
-    db: readDB(),
-    save(){ writeDB(this.db) },
-    createTicket(t){ t.id=this.db.nextId++; t.createdAt=now(); t.status='open'; t.comments=[]; this.db.tickets.push(t); this.save(); return t },
-    getTickets(){ return this.db.tickets.slice() },
-    getTicket(id){ return this.db.tickets.find(t=>t.id===Number(id)) },
-    updateTicket(updated){ const i=this.db.tickets.findIndex(t=>t.id===updated.id); if(i>=0){this.db.tickets[i]=updated; this.save()} },
-    addComment(id, comment){ const t=this.getTicket(id); if(!t) return; t.comments.push(comment); this.updateTicket(t); },
-    users(){ return this.db.users.slice() },
-    auth(username,password){ return this.db.users.find(u=>u.username===username && u.password===password) }
+//This is the ticket loading function that sends a request to the backend API to obtain the tickets for any staff member and displays them in a table format on the frontend.
+  async function loadTickets() {
+    const res = await fetch(API + "/tickets/mytickets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: getToken(), ip_address: getIP() })
+    });
+    const tickets = await res.json();
+    const tbody = document.querySelector("#ticketsTable tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    tickets.forEach(t => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><a href="ticket.html?id=${t.ticket_uuid}">#${t.ticket_uuid}</a></td>
+        <td>${t.ticket_name}</td>
+        <td>${t.ticket_description}</td>
+        <td>${t.status || "Open"}</td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
-
-  // Page wiring
-  document.addEventListener('DOMContentLoaded', ()=>{
-    if(document.getElementById('ticketForm')) bindSubmit()
-    if(document.getElementById('recentTickets')) renderRecent()
-    if(document.getElementById('loginForm')) bindLogin()
-    if(document.getElementById('ticketsTable')) renderDashboard()
-    if(document.getElementById('ticketCard')) renderTicketPage()
-  })
-
-  // Submission page
-  function bindSubmit(){
-    const form=document.getElementById('ticketForm')
-    const msg=document.getElementById('submitMsg')
-    form.addEventListener('submit', e=>{
-      e.preventDefault()
-      const data = new FormData(form)
-      const t = {title:data.get('title'), description:data.get('description'), priority:data.get('priority')||'regular', creatorName:data.get('creatorName')||'Anonymous', creatorEmail:data.get('creatorEmail')||''}
-      const created = OT.createTicket(t)
-      msg.textContent = `Ticket #${created.id} submitted.`
-      form.reset()
-      renderRecent()
-    })
+});
+// This is the function that displays the tickets that are assigned to or created by the guest and managed by the staff.
+async function loadTicket() {
+  const params = new URLSearchParams(window.location.search);
+  const ticket_uuid = params.get("id");
+  if (!ticket_uuid) return;
+  const res = await fetch(API + "/tickets/detail", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: getToken(), ip_address: getIP(), ticket_uuid })
+  });
+  const data = await res.json();
+  if (!data.success) {
+    alert("Cannot load ticket: " + (data.message || ""));
+    return;
   }
-
-  function renderRecent(){
-    const ul=document.getElementById('recentTickets')
-    if(!ul) return
-    ul.innerHTML=''
-    const items = OT.getTickets().slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8)
-    items.forEach(t=>{
-      const li=document.createElement('li')
-      li.innerHTML = `<strong><a href="ticket.html?id=${t.id}">#${t.id} ${escapeHtml(t.title)}</a></strong> — <span class="muted">${t.priority}</span>`
-      ul.appendChild(li)
-    })
+  const t = data.ticket;
+  document.getElementById("tTitle").textContent = t.ticket_name;
+  document.getElementById("tDesc").textContent = t.ticket_description;
+  const commentsEl = document.getElementById("comments");
+  if (commentsEl) {
+    commentsEl.innerHTML = "";
+    (t.comments || []).forEach(c => {
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${c.author}</strong> <span class="muted">${new Date(c.createdAt).toLocaleString()}</span><div>${c.message}</div>`;
+      commentsEl.appendChild(li);
+    });
   }
-
-  // Staff page
-  function bindLogin(){
-    const form=document.getElementById('loginForm')
-    const msg=document.getElementById('loginMsg')
-    form.addEventListener('submit', e=>{
-      e.preventDefault()
-      const data=new FormData(form)
-      const user = OT.auth(data.get('username'), data.get('password'))
-      if(!user){ msg.textContent='Invalid credentials'; return }
-      // store session temporarily in sessionStorage
-      sessionStorage.setItem('ot_user', JSON.stringify({username:user.username,display:user.display||user.username,role:user.role}))
-      msg.textContent=''
-      document.getElementById('loginCard').classList.add('hidden')
-      document.getElementById('dashboard').classList.remove('hidden')
-      initDashboard()
+}
+//this is the function that allows staff members to add comments to the tickets that they are managing and assigned to.
+async function addComment(ticket_uuid, text) {
+  const res = await fetch(API + "/tickets/comment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      token: getToken(),
+      ip_address: getIP(),
+      ticket_uuid,
+      comment_text: text
     })
+  });
+  const data = await res.json();
+  if (data.success) {
+    alert("Comment added");
+    loadTicket();
+  } else {
+    alert("Failed to add comment: " + (data.message || ""));
   }
-
-  function initDashboard(){
-    renderDashboard()
-    document.getElementById('oldestUrgent').addEventListener('click', ()=>{
-      const t = OT.getTickets().filter(x=>x.priority==='urgent' && x.status==='open').sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt))[0]
-      if(t) location.href = `ticket.html?id=${t.id}`
-      else alert('No urgent open tickets')
-    })
-    document.getElementById('unassigned').addEventListener('click', ()=>{
-      const t = OT.getTickets().filter(x=>!x.assignedTo && x.status==='open').sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt))[0]
-      if(t) location.href = `ticket.html?id=${t.id}`
-      else alert('No unassigned open tickets')
-    })
-    document.getElementById('sortBy').addEventListener('change', renderDashboard)
-  }
-
-  function renderDashboard(){
-    const tickets = OT.getTickets()
-    const ctx = document.getElementById('ticketChart')
-    if(ctx){
-      const urgent = tickets.filter(t=>t.priority==='urgent' && t.status==='open').length
-      const regular = tickets.filter(t=>t.priority!=='urgent' && t.status==='open').length
-      if(window._otChart) window._otChart.destroy()
-      window._otChart = new Chart(ctx,{type:'pie',data:{labels:['Urgent','Regular'],datasets:[{data:[urgent,regular],backgroundColor:['#e74c3c','#f1c40f']}]}})
-    }
-    const tbody=document.querySelector('#ticketsTable tbody')
-    if(!tbody) return
-    const sortBy = document.getElementById('sortBy').value
-    let rows = tickets.slice()
-    if(sortBy==='createdAt') rows.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
-    if(sortBy==='assignedTo') rows.sort((a,b)=> (a.assignedTo||'').localeCompare(b.assignedTo||''))
-    tbody.innerHTML=''
-    rows.forEach(t=>{
-      const tr=document.createElement('tr')
-      tr.innerHTML = `<td><a href="ticket.html?id=${t.id}">#${t.id}</a></td><td>${escapeHtml(t.title)}</td><td>${t.priority}</td><td>${t.assignedTo||'<span class="muted">Unassigned</span>'}</td><td>${new Date(t.createdAt).toLocaleString()}</td>`
-      tbody.appendChild(tr)
-    })
-  }
-
-  // Ticket page
-  function renderTicketPage(){
-    const id = new URLSearchParams(location.search).get('id')
-    if(!id) return
-    const t = OT.getTicket(id)
-    if(!t) return
-    document.getElementById('tTitle').textContent = `#${t.id} ${t.title}`
-    document.getElementById('tDesc').textContent = t.description
-    document.getElementById('tMeta').textContent = `${t.priority.toUpperCase()} • ${t.status} • Created ${new Date(t.createdAt).toLocaleString()} by ${t.creatorName||'Anonymous'}`
-    // assign dropdown
-    const assign = document.getElementById('assignTo')
-    assign.innerHTML = '<option value="">-- Unassigned --</option>'
-    OT.users().forEach(u=>{
-      const opt=document.createElement('option'); opt.value=u.username; opt.textContent = u.display||u.username; if(t.assignedTo===u.username) opt.selected=true; assign.appendChild(opt)
-    })
-    document.getElementById('status').value = t.status
-    document.getElementById('saveTicket').addEventListener('click', ()=>{
-      t.assignedTo = assign.value||null
-      t.status = document.getElementById('status').value
-      OT.updateTicket(t)
-      alert('Saved')
-    })
-    // comments
-    function renderComments(){
-      const ul=document.getElementById('comments'); ul.innerHTML=''
-      t.comments.forEach(c=>{
-        const li=document.createElement('li'); li.innerHTML = `<strong>${escapeHtml(c.author)}</strong> <span class="muted">${new Date(c.createdAt).toLocaleString()}</span><div>${escapeHtml(c.message)}</div>`; ul.appendChild(li)
-      })
-    }
-    renderComments()
-    document.getElementById('commentForm').addEventListener('submit', e=>{
-      e.preventDefault(); const fd=new FormData(e.target); const c={author:fd.get('author')||'Anonymous', message:fd.get('message'), createdAt:now()}; OT.addComment(t.id,c); t.comments.push(c); renderComments(); e.target.reset()
-    })
-  }
-
-  // small util
-  function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])) }
-
-})();
+}

@@ -1,6 +1,10 @@
 # Python (./Backend)
-backend/.venv/
+Backend/.venv/
+Backend/__pycache__/
+Backend/tests/__pycache__/
+Backend/.pytest_cache/
+Backend/.env
 # Node.js (./Frontend)
-frontend/node_modules/
-frontend/dist/
-frontend/.env
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env

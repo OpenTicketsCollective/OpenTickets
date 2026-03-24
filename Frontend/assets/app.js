@@ -102,7 +102,7 @@ async function loadTicket() {
   const commentsEl = document.getElementById("comments");
   if (commentsEl) {
     commentsEl.innerHTML = "";
-    (t.comments || []).forEach(c => {
+    (data.comments || []).forEach(c => {
       const li = document.createElement("li");
       li.innerHTML = `<strong>${c.author}</strong> <span class="muted">${new Date(c.createdAt).toLocaleString()}</span><div>${c.message}</div>`;
       commentsEl.appendChild(li);

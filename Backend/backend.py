@@ -30,6 +30,23 @@ class UserCreate(BaseModel):
     force_password_change: bool = False
 class UserID(BaseModel):
     userId: int
+class TicketCreate(BaseModel):
+    token: str
+    ip_address: str
+    title: str
+    description: str
+class TicketSession(BaseModel):
+    token: str
+    ip_address: str
+class TicketDetailsRequest(BaseModel):
+    ticket_uuid: str
+    token: str
+    ip_address: str
+class TicketComments(BaseModel):
+    ticket_uuid: str
+    ip_address: str
+    token: str
+    comment_text: str
 
 # This is the function that creates a connection pool to the MySql database using the MySQLConnectionPool class from the mysql.connector library. It reads the database connection parameters from environment variables and handles errors that may occur during the connection process.
 @app.post("/login")
@@ -135,3 +152,91 @@ def get_sessions():
         print("SESSION FETCH ERROR:", e)
         return []
     return sessions
+
+@app.post("/tickets/create")
+def create_ticket(data: TicketCreate):
+        valid, user_id= validate_session(data.token, data.ip_address)
+        if not valid:
+            return {"status": False, "message": "Invalid session"}
+        try:  
+            execute_query(
+            "INSERT INTO Tickets (ticket_name, ticket_description, created_by) VALUES (%s, %s, %s)",
+            (data.title, data.description, user_id)
+            )
+            return {"status": True, "message": "Ticket created successfully"}
+        except Exception as e:
+            print("TICKET CREATION ERROR:", e)
+            return {"status": False, "message": "Server error creating ticket"}
+    
+@app.post("/tickets/mytickets")
+def get_my_tickets(data: TicketSession):
+    try:
+        valid, user_id= validate_session(data.token, data.ip_address)
+        if not valid:
+            return []
+        
+        tickets = execute_query(
+            "SELECT ticket_uuid, ticket_name, ticket_description FROM Tickets WHERE created_by = %s ORDER BY created_time DESC",
+            (user_id,)
+        )
+        return {"status": True, "tickets": tickets}
+    except Exception as e:
+        print("TICKET FETCH ERROR:", e)
+        return []
+@app.post("/tickets/detail")
+def get_ticket_detail(data: TicketDetailsRequest):
+
+    try:
+        valid, user_id = validate_session(data.token, data.ip_address)
+
+        if not valid:
+            return {"success": False}
+
+        ticket = execute_query(
+            """
+            SELECT ticket_uuid, ticket_name, ticket_description, status
+            FROM Tickets
+            WHERE ticket_uuid = %s
+            """,
+            (data.ticket_uuid,)
+        )
+
+        comments = execute_query(
+            "SELECT comment_text, created_time FROM TicketComments WHERE ticket_uuid = %s ORDER BY created_time",
+            (data.ticket_uuid,)
+        )
+
+        if not ticket:
+            return {"success": False}
+
+        return {
+            "success": True,
+            "ticket": ticket[0],
+            "comments": comments
+        }
+
+    except Exception as e:
+        print("TICKET DETAIL ERROR:", e)
+        return {"success": False}
+@app.post("/tickets/comment")
+def add_comment(data: TicketComments):
+
+    try:
+        valid, user_id = validate_session(data.token, data.ip_address)
+
+        if not valid:
+            return {"success": False}
+
+        execute_query(
+            """
+            INSERT INTO TicketComments (ticket_uuid, comment_text, created_by)
+            VALUES (%s,%s,%s)
+            """,
+            (data.ticket_uuid, data.comment_text, user_id)
+        )
+
+        return {"success": True}
+
+    except Exception as e:
+        print("COMMENT ERROR:", e)
+        return {"success": False}

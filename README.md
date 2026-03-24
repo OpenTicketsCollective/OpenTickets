@@ -12,7 +12,7 @@ Implemented Features
 Installation
 `TBD`
 
-To start the backend server and the frontend connection you need to do these
+To start the backend server and the frontend connection you need to do these:
 uvicorn backend:app --host 127.0.0.1 --port 5000 --reload
 
 paste this in your browser to test the backend server functionality:

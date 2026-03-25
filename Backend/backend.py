@@ -167,7 +167,7 @@ def reset_password(data: UserID, current_user: int = Depends(require_admin)):
 def get_sessions(current_user: int = Depends(require_admin)):
     try:
         sessions = execute_query("""
-            SELECT session_token AS session_id,
+            SELECT BIN_TO_UUID(session_id) AS session_id,
                    user_id,
                    created_time,
                    expire_time

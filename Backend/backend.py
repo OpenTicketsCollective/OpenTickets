@@ -14,8 +14,8 @@ app.add_middleware(
         "http://localhost:5000"
     ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 #These are the Pydantic models that define the expected structure of the data for the login, user creation, and user ID endpoint.
 class LoginData(BaseModel):

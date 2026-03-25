@@ -1,12 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Form submitted")
-const API = "http://127.0.0.1:8000"
+const API = "https://127.0.0.1:8000"
 
-if (!token) { // Redirect to login if no token
-    alert("Please login first");
-    window.location.href = "index.html";
-    return;
+const token = sessionStorage.getItem("session_token");
+
+// Only initialize dashboard if user is logged in (app.js handles login)
+if (!token) {
+    return; // User not logged in, app.js will show login form
 }
+
+// User is logged in - show dashboard and initialize admin functions
+document.getElementById("loginCard").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+
 //User management system for the admin dashboard so that the admin can manage user accounts effectively
     async function loaduser(){
         const response = await fetch(API +"/admin/users")
@@ -59,7 +64,7 @@ if (!token) { // Redirect to login if no token
         if(confirm("Are you sure you want to reset this user's password?")){
             await fetch(API + "/admin/resetpassword", {
                 method:"POST",
-                headers:{"Content-Type":"application/json"},
+                headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
                 body:JSON.stringify({userId})
             })
             alert("Password reset successfully")}
@@ -67,7 +72,9 @@ if (!token) { // Redirect to login if no token
 
 //session management for the admin dashboard so that the admin can manage user sessions effectively
     async function loadSessions(){
-        const response = await fetch(API +"/admin/sessions")
+        const response = await fetch(API +"/admin/sessions", {
+            headers:{"Authorization":sessionStorage.getItem("session_token")}
+        })
         const sessions = await response.json()
         const table = document.getElementById('sessionTable')
         table.innerHTML = ""
@@ -86,4 +93,14 @@ if (!token) { // Redirect to login if no token
     }
 loaduser()
 loadSessions()
+
+// Show logout button for authenticated users
+document.getElementById("logoutBtn").style.display = "block";
+
+// Logout handler
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    sessionStorage.removeItem("session_token");
+    sessionStorage.removeItem("user_id");
+    location.reload();
+});
 })

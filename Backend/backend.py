@@ -11,12 +11,15 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://127.0.0.1:5000",
+        "https://localhost:5000",
         "http://127.0.0.1:5000",
         "http://localhost:5000"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    max_age=3600,
 )
 #These are the Pydantic models that define the expected structure of the data for the login, user creation, and user ID endpoint.
 class LoginData(BaseModel):
@@ -84,6 +87,7 @@ def login(data: LoginData, request: Request):
     try:
         success, user_id = login_user(data.email, data.password)
         if not success:
+            print(f"LOGIN FAILED for {data.email}")
             return {"status": False, "message": "Invalid credentials"}
 
         token = new_session(
@@ -97,7 +101,10 @@ def login(data: LoginData, request: Request):
             "user_id": user_id
         }
     except Exception as e:
-        print("LOGIN ERROR:", e)
+        print(f"LOGIN ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"status": False, "message": f"Error: {str(e)}"}
         return {"status": False, "message": "Login failed"}
         
 #This is the function that allows admin members to view all users in the system by sending a request to the backend API that queries the database for all users and returns their information in a structured format.

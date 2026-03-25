@@ -1,5 +1,5 @@
-//This is the main JavaScript file for the OpenTickets frontend application. It handles user authentication, ticket management, and interaction with the backend API. The code is structured to listen for DOMContentLoaded events to initialize event listeners for forms and buttons, and it defines functions to load tickets, add comments, and manage user sessions. The API endpoint is set to "http://
-const API = "http://127.0.0.1:8000";
+//This is the main JavaScript file for the OpenTickets frontend application. It handles user authentication, ticket management, and interaction with the backend API. The code is structured to listen for DOMContentLoaded events to initialize event listeners for forms and buttons, and it defines functions to load tickets, add comments, and manage user sessions. The API endpoint is set to "https://
+const API = "https://127.0.0.1:8000";
 
 //These functions get the session info through session storage and the IP addressed used for the API calls.
 function getToken() { return sessionStorage.getItem("session_token"); }
@@ -15,8 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(API + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
-          email: form.get("username"),
+          email: form.get("email"),
           password: form.get("password")
         })
       });

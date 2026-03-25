@@ -14,16 +14,26 @@ from os import urandom
 def login_user(email, password):
     authuser = execute_query("Select user_id from User where email = %s", (email,))
     if not authuser:
+        print(f"[LOGIN] User not found: {email}")
         return False, None
     
     user_id = authuser[0]["user_id"]
+    print(f"[LOGIN] Found user {email} with ID {user_id}")
+    
     hashed = execute_query("SELECT password FROM User WHERE user_id = %s", (user_id,))
     if not hashed:
+        print(f"[LOGIN] Could not fetch hashed password for user {user_id}")
         return False, None
     
-    if ph().verify(hashed[0]["password"], password):
+    try:
+        # ph().verify() raises an exception if password is wrong
+        # Signature: verify(hash, password)
+        ph().verify(hashed[0]["password"], password)
+        print(f"[LOGIN] Password verification passed for {email}")
         return True, user_id
-    return False, None
+    except Exception as e:
+        print(f"[LOGIN] Password verification failed for {email}: {type(e).__name__}")
+        return False, None
 
 def new_session(user_id, ip_address, user_agent):
     if not isinstance(user_id, int):
@@ -38,7 +48,7 @@ def new_session(user_id, ip_address, user_agent):
     # Store the session in the database
     current_time = time.strftime('%Y-%m-%d %H:%M:%S')
     session_length = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time() + 14400))
-    execute_query("INSERT INTO Sessions (session_id, user_id, session_token, created_time, expire_time, ip_address, user_agent_header, is_valid) VALUES (UUID(), %s, %s, %s, %s, %s, %s, 1)", (user_id, token, current_time, session_length, ip_address, user_agent))
+    execute_query("INSERT INTO Sessions (session_id, user_id, session_token, created_time, expire_time, ip_address, user_agent_header, is_valid) VALUES (UUID_TO_BIN(UUID()), %s, %s, %s, %s, %s, %s, 1)", (user_id, token, current_time, session_length, ip_address, user_agent))
     return token
 
 def validate_session(token, ip_address):

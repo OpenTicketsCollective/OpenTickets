@@ -78,7 +78,7 @@ def execute_query(
     conn = get_connection()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(sql, params or (),  multi=True)
+        cursor.execute(sql, params or ())
         results = cursor.fetchall() if cursor.with_rows else []
         # commit non-selects just in case the caller doesn't
         if not cursor.with_rows:

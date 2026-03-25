@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ticketForm.addEventListener("submit", async e => {
       e.preventDefault();
       const form = new FormData(e.target);
+      const title = form.get("title") || document.getElementById("title").value;
+      const description = form.get("description") || document.getElementById("description").value;
       const res = await fetch(API + "/tickets/create", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },

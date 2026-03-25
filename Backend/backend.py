@@ -10,8 +10,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://127.0.0.1:8000",
-        "http://localhost:8000"
+        "http://127.0.0.1:5000",
+        "http://localhost:5000"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -31,8 +31,6 @@ class UserCreate(BaseModel):
 class UserID(BaseModel):
     userId: int
 class TicketCreate(BaseModel):
-    token: str
-    ip_address: str
     title: str
     description: str
 class TicketSession(BaseModel):
@@ -155,19 +153,25 @@ def get_sessions():
 
 @app.post("/tickets/create")
 def create_ticket(data: TicketCreate):
-        valid, user_id= validate_session(data.token, data.ip_address)
-        if not valid:
-            return {"status": False, "message": "Invalid session"}
-        try:  
+        user_id = None
+        if data.token:
+            valid, user_id = validate_session(data.token, data.ip_address)
+            if not valid:
+                user_id = None
+        try:
             execute_query(
-            "INSERT INTO Tickets (ticket_name, ticket_description, created_by) VALUES (%s, %s, %s)",
-            (data.title, data.description, user_id)
+                """
+                INSERT INTO Tickets (ticket_name, ticket_description, created_by)
+                VALUES (%s, %s, %s)
+                """,
+                (data.title, data.description, user_id)
             )
-            return {"status": True, "message": "Ticket created successfully"}
+
+            return {"status": True}
         except Exception as e:
             print("TICKET CREATION ERROR:", e)
-            return {"status": False, "message": "Server error creating ticket"}
-    
+            return {"status": False}
+
 @app.post("/tickets/mytickets")
 def get_my_tickets(data: TicketSession):
     try:
@@ -179,7 +183,7 @@ def get_my_tickets(data: TicketSession):
             "SELECT ticket_uuid, ticket_name, ticket_description FROM Tickets WHERE created_by = %s ORDER BY created_time DESC",
             (user_id,)
         )
-        return {"status": True, "tickets": tickets}
+        return tickets
     except Exception as e:
         print("TICKET FETCH ERROR:", e)
         return []

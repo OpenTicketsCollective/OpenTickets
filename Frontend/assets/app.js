@@ -40,16 +40,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const form = new FormData(e.target);
       const res = await fetch(API + "/tickets/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
           token: getToken(),
           ip_address: getIP(),
-          title: form.get("title"),
-          description: form.get("description")
+          title: document.getElementById("title").value,
+          description: document.getElementById("description").value
         })
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.status) {
         alert("Ticket created successfully");
         form.reset();
         loadTickets();

@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Form submitted")
-const API = "http://127.0.0.1:5000"
+const API = "http://127.0.0.1:8000"
 
 //User management system for the admin dashboard so that the admin can manage user accounts effectively
     async function loaduser(){

@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    container_name: opentickets-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      # Required: Set root password on first run
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-RootPass123!}
+      # Database is auto-created by init-schema.sql
+      # MYSQL_DATABASE: opentickets_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - opentickets-network
+    healthcheck:
+      test: ["CMD", "mysql", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  opentickets-network:
+    driver: bridge

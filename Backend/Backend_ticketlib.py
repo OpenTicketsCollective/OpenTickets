@@ -61,7 +61,25 @@ def get_ticket_details(token, ip_address, ticket_uuid):
 		return False, access_error
 
 	# session is valid; proceed with fetching the ticket details
-	ticket_details = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, contains_flagged_url, ticket_description FROM ActiveTickets WHERE ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
+	ticket_details = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, contains_flagged_url, ticket_description, status_code, priority_code, create_time FROM ActiveTickets WHERE ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
 	if not ticket_details:
 		return False, "Ticket not found"
-	return True, ticket_details[0]
+	
+	# Fetch all comments for this ticket
+	comments = execute_query("SELECT BIN_TO_UUID(comment_number) AS comment_uuid, created_by, comment_description, create_time FROM TicketComments WHERE ticket_number = UUID_TO_BIN(%s) ORDER BY create_time ASC", (ticket_uuid,))
+	
+	return True, {
+		"ticket": ticket_details[0],
+		"comments": comments if comments else []
+	}
+
+def get_user_tickets(token, ip_address):
+	valid, user_id = validate_session(token, ip_address)
+	if not valid:
+		# session invalid; reject the operation
+		return False, "Invalid session"
+
+	# Fetch all tickets created by this user
+	tickets = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, ticket_description, status_code, priority_code, create_time FROM ActiveTickets WHERE created_by = %s ORDER BY create_time DESC", (user_id,))
+	
+	return True, tickets if tickets else []

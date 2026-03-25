@@ -12,10 +12,17 @@ from os import urandom
 
 
 def login_user(email, password):
-    authuser= execute_query("Select user_id from User where email = %s", (email,))
-    hashed = execute_query("SELECT password FROM User WHERE user_id = %s", (authuser,))
-    if ph.verify(hashed, password):
-        return True, authuser
+    authuser = execute_query("Select user_id from User where email = %s", (email,))
+    if not authuser:
+        return False, None
+    
+    user_id = authuser[0]["user_id"]
+    hashed = execute_query("SELECT password FROM User WHERE user_id = %s", (user_id,))
+    if not hashed:
+        return False, None
+    
+    if ph().verify(hashed[0]["password"], password):
+        return True, user_id
     return False, None
 
 def new_session(user_id, ip_address, user_agent):

@@ -1,5 +1,5 @@
 from Backend_dblib import execute_query
-from Backend_authlib import validate_session, Checkauthlevel
+from Backend_authlib import validate_session, checkauthlevel
 
 
 def create_ticket(token, ip_address, title, description):
@@ -28,7 +28,7 @@ def _can_access_ticket(requestedby, ticket_uuid):
 	ticket_creator_id = ticket_creator_row[0]["created_by"]
 	if requestedby == ticket_creator_id:
 		return True, None
-	authorized, _ = Checkauthlevel(requestedby, ["Admin", "L1", "L2"])
+	authorized, _ = checkauthlevel(requestedby, ["Admin", "L1", "L2"])
 	if not authorized:
 		return False, "Insufficient permissions"
 	return True, None

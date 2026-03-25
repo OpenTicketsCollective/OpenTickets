@@ -1,8 +1,9 @@
 # these are the backend API endpoints for the OpenTickets application alongside all the necessary imports and setup for the FastAPI.
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from Backend_authlib import login_user, new_session, validate_session, create_user
+from Backend_authlib import login_user, new_session, validate_session, create_user, checkauthlevel
+import Backend_ticketlib
 from Backend_dblib import execute_query
 
 app = FastAPI()
@@ -69,7 +70,7 @@ def get_current_user(request: Request):
 
 def require_admin(current_user: int = Depends(get_current_user)):
     """Requires Admin access - raises 403 if not admin"""
-    authorized, _ = Checkauthlevel(current_user, ["Admin"])
+    authorized, _ = checkauthlevel(current_user, ["Admin"])
     if not authorized:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -147,7 +148,7 @@ def delete_user(data: UserID, current_user: int = Depends(require_admin)):
 
 #This is the function that allows admin members to reset a user's password by sending a request to the backend API with the user ID of the user whose password is to be reset and the backend will handle the password reset process (which may involve generating a new password, updating the database, and possibly sending an email to the user) and return a success or failure message.
 @app.post("/admin/resetpassword")
-def reset_password(data: UserID):
+def reset_password(data: UserID, current_user: int = Depends(require_admin)):
 
     return {
         "status": True,
@@ -174,7 +175,7 @@ def get_sessions(current_user: int = Depends(require_admin)):
 @app.post("/tickets/create")
 def create_ticket(data: TicketCreate):
     try:
-        success, result = create_ticket(
+        success, result = Backend_ticketlib.create_ticket(
             data.token,
             data.ip_address,
             data.title,
@@ -191,7 +192,7 @@ def create_ticket(data: TicketCreate):
 @app.post("/tickets/mytickets")
 def get_my_tickets(data: TicketSession):
     try:
-        success, tickets = get_user_tickets(data.token, data.ip_address)
+        success, tickets = Backend_ticketlib.get_user_tickets(data.token, data.ip_address)
         if success:
             return tickets or []
         return []
@@ -203,7 +204,7 @@ def get_my_tickets(data: TicketSession):
 def get_ticket_detail(data: TicketDetailsRequest):
 
     try:
-        success, result = get_ticket_details(
+        success, result = Backend_ticketlib.get_ticket_details(
             data.token,
             data.ip_address,
             data.ticket_uuid
@@ -219,7 +220,7 @@ def get_ticket_detail(data: TicketDetailsRequest):
 def add_comment(data: TicketComments):
 
     try:
-        success, msg = create_comment(
+        success, msg = Backend_ticketlib.create_comment(
             data.token,
             data.ip_address,
             data.ticket_uuid,

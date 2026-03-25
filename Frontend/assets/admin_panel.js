@@ -18,7 +18,7 @@ if (!token) { // Redirect to login if no token
             row.innerHTML=`
                 <td>${u.user_id}</td>
                 <td>${u.email}</td>
-                <td>${u.role}</td>
+                <td>${u.first_name} ${u.last_name}</td>
                 <td>${u.access_level}</td>
          <td>
          <button onclick="resetPassword(${u.user_id})">Reset Password</button>
@@ -77,9 +77,9 @@ if (!token) { // Redirect to login if no token
                 <td>${s.session_id}</td>
                 <td>${s.user_id}</td>
                 <td>${s.created_time}</td>
-                <td>${s.expires_time}</td>
+                <td>${s.expire_time}</td>
                 <td></td>
-                <td><button onclick="terminateSession(${s.session_id})">Terminate</button></td>
+                <td></td>
             `
             table.appendChild(row)
         })

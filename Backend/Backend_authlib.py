@@ -61,7 +61,7 @@ def logout_session(token):
     execute_query("UPDATE Sessions SET is_valid = 0 WHERE session_token = %s", (token,))
 
 
-def Checkauthlevel(user_id, permitted_access_levels):
+def checkauthlevel(user_id, permitted_access_levels):
     if not isinstance(user_id, int):
         raise TypeError(f"user_id must be int, got {type(user_id).__name__}")
     if isinstance(permitted_access_levels, str):
@@ -83,7 +83,7 @@ def create_user(token, ip_address, email, password, access_level, first_name, la
         # session invalid; reject the operation
         return False, "Invalid session"
 
-    authorized, _ = Checkauthlevel(requestedby, ["Admin"])
+    authorized, _ = checkauthlevel(requestedby, ["Admin"])
     if not authorized:
         # user doesn't have permissions to create accounts; reject the operation
         return False, "Insufficient permissions"

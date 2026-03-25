@@ -2,6 +2,11 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Form submitted")
 const API = "http://127.0.0.1:8000"
 
+if (!token) { // Redirect to login if no token
+    alert("Please login first");
+    window.location.href = "index.html";
+    return;
+}
 //User management system for the admin dashboard so that the admin can manage user accounts effectively
     async function loaduser(){
         const response = await fetch(API +"/admin/users")

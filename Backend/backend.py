@@ -33,6 +33,8 @@ class UserID(BaseModel):
 class TicketCreate(BaseModel):
     title: str
     description: str
+    token: str
+    ip_address: str
 class TicketSession(BaseModel):
     token: str
     ip_address: str
@@ -46,53 +48,76 @@ class TicketComments(BaseModel):
     token: str
     comment_text: str
 
+# Dependencies (using authlib)
+def get_current_user(request: Request):
+    """Returns user_id if session is valid, otherwise raises 401"""
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing session token"
+        )
+
+    valid, user_id = validate_session(token, request.client.host)
+    if not valid or user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired session"
+        )
+    return user_id
+
+
+def require_admin(current_user: int = Depends(get_current_user)):
+    """Requires Admin access - raises 403 if not admin"""
+    authorized, _ = Checkauthlevel(current_user, ["Admin"])
+    if not authorized:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+
 # This is the function that creates a connection pool to the MySql database using the MySQLConnectionPool class from the mysql.connector library. It reads the database connection parameters from environment variables and handles errors that may occur during the connection process.
 @app.post("/login")
 def login(data: LoginData, request: Request):
     try:
         success, user_id = login_user(data.email, data.password)
-    except Exception as e:
-        print("LOGIN ERROR:", e)
-        return {"status": False, "message": "Login failed"}
-    if not success:
-        return {"status": False, "message": "Invalid credentials"}
-    try:
+        if not success:
+            return {"status": False, "message": "Invalid credentials"}
+
         token = new_session(
             user_id,
             request.client.host,
             request.headers.get("user-agent")
         )
+        return {
+            "status": True,
+            "session_token": token,
+            "user_id": user_id
+        }
     except Exception as e:
-        print("SESSION ERROR:", e)
-        return {"status": False, "message": "Session creation failed"}
-    return {
-        "status": True,
-        "session_token": token,
-        "user_id": user_id
-    }
-
+        print("LOGIN ERROR:", e)
+        return {"status": False, "message": "Login failed"}
+        
 #This is the function that allows admin members to view all users in the system by sending a request to the backend API that queries the database for all users and returns their information in a structured format.
 @app.get("/admin/users")
-def get_users():
+def get_users(current_user: int = Depends(require_admin)):
     try:
         users = execute_query("""
             SELECT user_id, email, first_name, last_name, access_level
             FROM User
         """)
+        return users or []
     except Exception as e:
-        print("USER FETCH ERROR:", e)
-        return []
-    return users
+        print("ADMIN USERS FETCH ERROR:", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch users")
 
 #This is the function that allows admin members to create new users in the system by sending a request to the backend API with the necessary user information (email, password, access level, etc.) and the backend will handle the creation of the user in the database and return a success or failure message.
 @app.post("/admin/createuser")
-def admin_create_user(data: UserCreate, request: Request):
+def admin_create_user(data: UserCreate, request: Request, current_user: int = Depends(require_admin)):
     try:
-        token = request.headers.get("Authorization")
-        if not token:
-            return {"status": False, "message": "Missing session token"}
         success, msg = create_user(
-            token,
+            request.headers.get("Authorization"),
             request.client.host,
             data.email,
             data.password,
@@ -101,30 +126,24 @@ def admin_create_user(data: UserCreate, request: Request):
             data.last_name,
             data.force_password_change
         )
-        return {
-            "status": success,
-            "message": msg
-        }
+        return {"status": success, "message": msg or "User created successfully"}
     except Exception as e:
-        print("CREATE USER ERROR:", e)
-        return {
-            "status": False,
-            "message": "Server error creating user"
-        }
+        print("ADMIN CREATE USER ERROR:", e)
+        raise HTTPException(status_code=500, detail="Server error creating user")
+
 
 #This is the function that allows admin members to delete users from the system by sending a request to the backend API with the user ID of the user to be deleted and the backend will handle the deletion of the user from the database and return a success or failure message.
 @app.post("/admin/deleteuser")
-def delete_user(data: UserID):
+def delete_user(data: UserID, current_user: int = Depends(require_admin)):
     try:
-        execute_query(
-            "DELETE FROM User WHERE user_id = %s",
-            (data.userId,)
-        )
-    except Exception as e:
-        print("DELETE ERROR:", e)
-        return {"status": False}
+        if data.userId == current_user:
+            raise HTTPException(status_code=400, detail="Cannot delete your own account")
 
-    return {"status": True}
+        execute_query("DELETE FROM User WHERE user_id = %s", (data.userId,))
+        return {"status": True, "message": "User deleted successfully"}
+    except Exception as e:
+        print("DELETE USER ERROR:", e)
+        raise HTTPException(status_code=500, detail="Failed to delete user")
 
 #This is the function that allows admin members to reset a user's password by sending a request to the backend API with the user ID of the user whose password is to be reset and the backend will handle the password reset process (which may involve generating a new password, updating the database, and possibly sending an email to the user) and return a success or failure message.
 @app.post("/admin/resetpassword")
@@ -137,7 +156,7 @@ def reset_password(data: UserID):
 
 #This is the function that allows admin members to view all active sessions in the system by sending a request to the backend API that queries the database for all active sessions and returns their information (such as session token, user ID, creation time, expiration time, etc.) in a structured format.
 @app.get("/admin/sessions")
-def get_sessions():
+def get_sessions(current_user: int = Depends(require_admin)):
     try:
         sessions = execute_query("""
             SELECT session_token AS session_id,
@@ -145,12 +164,13 @@ def get_sessions():
                    created_time,
                    expire_time
             FROM Sessions
+            WHERE is_valid = 1
         """)
+        return sessions or []
     except Exception as e:
-        print("SESSION FETCH ERROR:", e)
-        return []
-    return sessions
-
+        print("ADMIN SESSIONS FETCH ERROR:", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch sessions")
+        
 @app.post("/tickets/create")
 def create_ticket(data: TicketCreate):
     try:

@@ -1,7 +1,7 @@
 # these are the backend API endpoints for the OpenTickets application alongside all the necessary imports and setup for the FastAPI.
 from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from Backend_authlib import login_user, new_session, validate_session, create_user, checkauthlevel
 import Backend_ticketlib
 from Backend_dblib import execute_query
@@ -32,6 +32,14 @@ class UserCreate(BaseModel):
     password: str
     access_level: str
     force_password_change: bool = False
+    
+    @field_validator('access_level')
+    @classmethod
+    def validate_access_level(cls, v):
+        valid_levels = {'Admin', 'L1', 'L2', 'User'}
+        if v not in valid_levels:
+            raise ValueError(f"Invalid access_level. Must be one of: {', '.join(sorted(valid_levels))}")
+        return v
 class UserID(BaseModel):
     userId: int
 class TicketCreate(BaseModel):

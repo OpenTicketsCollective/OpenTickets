@@ -45,10 +45,12 @@
   <input name="first_name" placeholder="First Name" required>
   <input name="last_name" placeholder="Last Name" required>
   <input name="password" placeholder="Password" type="password" required>
-  <select name="access_level">
+  <select name="access_level" required>
+  <option value="">Select Access Level</option>
   <option value="Admin">Admin</option>
   <option value="L1">L1</option>
   <option value="L2">L2</option>
+  <option value="User">User</option>
 </select>
 <label>
 Force Password Change
@@ -78,6 +80,7 @@ Force Password Change
 <!-- This is the section for managing active user sessions -->
 <section>
 <h2>Active Sessions</h2>
+<div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc;">
 <table border="1">
 <thead>
 <tr>
@@ -89,6 +92,7 @@ Force Password Change
 </thead>
 <tbody id="sessionTable"></tbody>
 </table>
+</div>
   </section>
   </main>
     <script src="assets/app.js"></script>

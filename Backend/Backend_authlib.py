@@ -31,7 +31,7 @@ def new_session(user_id, ip_address, user_agent):
     # Store the session in the database
     current_time = time.strftime('%Y-%m-%d %H:%M:%S')
     session_length = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time() + 14400))
-    execute_query("INSERT INTO Sessions (session_id, user_id, session_token, created_time, expire_time, ip_address, user_agent_header)  VALUES (UUID(), %s, %s, %s, %s, %s, %s)", (user_id, token, current_time, session_length, ip_address, user_agent))
+    execute_query("INSERT INTO Sessions (session_id, user_id, session_token, created_time, expire_time, ip_address, user_agent_header, is_valid) VALUES (UUID(), %s, %s, %s, %s, %s, %s, 1)", (user_id, token, current_time, session_length, ip_address, user_agent))
     return token
 
 def validate_session(token, ip_address):
@@ -40,7 +40,7 @@ def validate_session(token, ip_address):
     if not isinstance(ip_address, str):
         raise TypeError(f"ip_address must be str, got {type(ip_address).__name__}")
     # Check if the session token exists and is valid
-    session = execute_query("SELECT user_id, expire_time FROM Sessions WHERE session_token = %s AND ip_address = %s", (token, ip_address))
+    session = execute_query("SELECT user_id, expire_time FROM Sessions WHERE session_token = %s AND ip_address = %s AND is_valid = 1", (token, ip_address))
     if session:
         user_id, expire_time = session[0]['user_id'], session[0]['expire_time']
         if isinstance(expire_time, str):
@@ -51,7 +51,7 @@ def validate_session(token, ip_address):
     return False, None
 
 def logout_session(token):
-    execute_query("Update Sessions SET expire_time = %s WHERE session_token = %s", (time.strftime('%Y-%m-%d %H:%M:%S'), token))
+    execute_query("UPDATE Sessions SET is_valid = 0 WHERE session_token = %s", (token,))
 
 
 def Checkauthlevel(user_id, permitted_access_levels):

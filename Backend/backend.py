@@ -153,94 +153,61 @@ def get_sessions():
 
 @app.post("/tickets/create")
 def create_ticket(data: TicketCreate):
-        user_id = None
-        if data.token:
-            valid, user_id = validate_session(data.token, data.ip_address)
-            if not valid:
-                user_id = None
-        try:
-            execute_query(
-                """
-                INSERT INTO Tickets (ticket_name, ticket_description, created_by)
-                VALUES (%s, %s, %s)
-                """,
-                (data.title, data.description, user_id)
-            )
+    try:
+        success, result = create_ticket(
+            data.token,
+            data.ip_address,
+            data.title,
+            data.description
+        )
+        if success:
+            return {"status": True, "ticket_uuid": result}
+        return {"status": False, "message": result}
+    except Exception as e:
+        print("TICKET CREATION ERROR:", e)
+        return{"status": False, "message": "Server Error"}
 
-            return {"status": True}
-        except Exception as e:
-            print("TICKET CREATION ERROR:", e)
-            return {"status": False}
 
 @app.post("/tickets/mytickets")
 def get_my_tickets(data: TicketSession):
     try:
-        valid, user_id= validate_session(data.token, data.ip_address)
-        if not valid:
-            return []
-        
-        tickets = execute_query(
-            "SELECT ticket_uuid, ticket_name, ticket_description FROM Tickets WHERE created_by = %s ORDER BY created_time DESC",
-            (user_id,)
-        )
-        return tickets
+        success, tickets = get_user_tickets(data.token, data.ip_address)
+        if success:
+            return tickets or []
+        return []
     except Exception as e:
         print("TICKET FETCH ERROR:", e)
         return []
+    
 @app.post("/tickets/detail")
 def get_ticket_detail(data: TicketDetailsRequest):
 
     try:
-        valid, user_id = validate_session(data.token, data.ip_address)
-
-        if not valid:
-            return {"success": False}
-
-        ticket = execute_query(
-            """
-            SELECT ticket_uuid, ticket_name, ticket_description, status
-            FROM Tickets
-            WHERE ticket_uuid = %s
-            """,
-            (data.ticket_uuid,)
+        success, result = get_ticket_details(
+            data.token,
+            data.ip_address,
+            data.ticket_uuid
         )
-
-        comments = execute_query(
-            "SELECT comment_text, created_time FROM TicketComments WHERE ticket_uuid = %s ORDER BY created_time",
-            (data.ticket_uuid,)
-        )
-
-        if not ticket:
-            return {"success": False}
-
-        return {
-            "success": True,
-            "ticket": ticket[0],
-            "comments": comments
-        }
-
+        if success:
+            return {"success": True, "ticket": result["ticket"], "comments": result["comments"]}
+        return {"success": False, "message": result}
     except Exception as e:
         print("TICKET DETAIL ERROR:", e)
         return {"success": False}
+                
 @app.post("/tickets/comment")
 def add_comment(data: TicketComments):
 
     try:
-        valid, user_id = validate_session(data.token, data.ip_address)
-
-        if not valid:
-            return {"success": False}
-
-        execute_query(
-            """
-            INSERT INTO TicketComments (ticket_uuid, comment_text, created_by)
-            VALUES (%s,%s,%s)
-            """,
-            (data.ticket_uuid, data.comment_text, user_id)
+        success, msg = create_comment(
+            data.token,
+            data.ip_address,
+            data.ticket_uuid,
+            data.comment_text
         )
-
-        return {"success": True}
-
+        if success:
+            return {"success": True}
+        return {"success": False, "message": msg}
     except Exception as e:
-        print("COMMENT ERROR:", e)
+        print("ADD COMMENT ERROR:", e)
         return {"success": False}

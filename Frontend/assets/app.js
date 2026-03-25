@@ -42,8 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
-          token: getToken(),
-          ip_address: getIP(),
           title: document.getElementById("title").value,
           description: document.getElementById("description").value
         })

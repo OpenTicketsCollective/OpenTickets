@@ -116,7 +116,7 @@ def login(data: LoginData, request: Request):
         return {"status": False, "message": "Login failed"}
         
 #This is the function that allows admin members to view all users in the system by sending a request to the backend API that queries the database for all users and returns their information in a structured format.
-@app.get("/admin/users")
+@app.post("/admin/users")
 def get_users(current_user: int = Depends(require_admin)):
     try:
         users = execute_query("""
@@ -171,7 +171,7 @@ def reset_password(data: UserID, current_user: int = Depends(require_admin)):
     }
 
 #This is the function that allows admin members to view all active sessions in the system by sending a request to the backend API that queries the database for all active sessions and returns their information (such as session token, user ID, creation time, expiration time, etc.) in a structured format.
-@app.get("/admin/sessions")
+@app.post("/admin/sessions")
 def get_sessions(current_user: int = Depends(require_admin)):
     try:
         sessions = execute_query("""

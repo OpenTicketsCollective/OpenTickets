@@ -14,7 +14,10 @@ document.getElementById("dashboard").classList.remove("hidden");
 
 //User management system for the admin dashboard so that the admin can manage user accounts effectively
     async function loaduser(){
-        const response = await fetch(API +"/admin/users")
+        const response = await fetch(API +"/admin/users", {
+            method: "POST",
+            headers: {"Authorization": sessionStorage.getItem("session_token")}
+        })
         const res = await response.json()
         const table = document.getElementById('userTable')
         table.innerHTML = ""
@@ -45,6 +48,7 @@ document.getElementById("dashboard").classList.remove("hidden");
             body:JSON.stringify(data)
         })
         loaduser()
+        loadSessions()
     })
 
 //IT personel user deletion for the admin dashboard so that the admin can delete user accounts effectively
@@ -56,6 +60,7 @@ document.getElementById("dashboard").classList.remove("hidden");
                 body:JSON.stringify({userId})
             })
             loaduser()
+            loadSessions()
         }
     }
 
@@ -67,12 +72,15 @@ document.getElementById("dashboard").classList.remove("hidden");
                 headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
                 body:JSON.stringify({userId})
             })
-            alert("Password reset successfully")}
+            alert("Password reset successfully")
+            loaduser()
+        }
     }
 
 //session management for the admin dashboard so that the admin can manage user sessions effectively
     async function loadSessions(){
         const response = await fetch(API +"/admin/sessions", {
+            method: "POST",
             headers:{"Authorization":sessionStorage.getItem("session_token")}
         })
         const sessions = await response.json()

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-"""Run the FastAPI backend with HTTPS/SSL enabled."""
 import subprocess
 import sys
 from pathlib import Path

@@ -4,8 +4,7 @@ Backend/__pycache__/
 Backend/tests/__pycache__/
 Backend/.pytest_cache/
 Backend/.env
-Backend/seed_db.py
-Backend/SEED_DB_README.md
+Docker/*
 # Node.js (./Frontend)
 Frontend/node_modules/
 Frontend/dist/

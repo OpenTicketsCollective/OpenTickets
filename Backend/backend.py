@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
-from Backend_authlib import login_user, new_session, validate_session, create_user, checkauthlevel
+from Backend_authlib import login_user, new_session, validate_session, create_user, checkauthlevel, display_sessions
 import Backend_ticketlib
 from Backend_dblib import execute_query
 
@@ -172,17 +172,23 @@ def reset_password(data: UserID, current_user: int = Depends(require_admin)):
 
 #This is the function that allows admin members to view all active sessions in the system by sending a request to the backend API that queries the database for all active sessions and returns their information (such as session token, user ID, creation time, expiration time, etc.) in a structured format.
 @app.post("/admin/sessions")
-def get_sessions(current_user: int = Depends(require_admin)):
+def get_sessions(request: Request, current_user: int = Depends(require_admin)):
     try:
-        sessions = execute_query("""
-            SELECT BIN_TO_UUID(session_id) AS session_id,
-                   user_id,
-                   created_time,
-                   expire_time
-            FROM Sessions
-            WHERE is_valid = 1
-        """)
-        return sessions or []
+        token = request.headers.get("Authorization")
+        success, result = display_sessions(token, request.client.host)
+        
+        if not success:
+            # Check the error message to return appropriate HTTP status code
+            if "Invalid session" in str(result):
+                raise HTTPException(status_code=401, detail=result)
+            elif "Insufficient permissions" in str(result):
+                raise HTTPException(status_code=403, detail=result)
+            else:
+                raise HTTPException(status_code=400, detail=result)
+        
+        return result or []
+    except HTTPException:
+        raise
     except Exception as e:
         print("ADMIN SESSIONS FETCH ERROR:", e)
         raise HTTPException(status_code=500, detail="Failed to fetch sessions")

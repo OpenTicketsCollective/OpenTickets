@@ -106,3 +106,16 @@ def create_user(token, ip_address, email, password, access_level, first_name, la
     execute_query("INSERT INTO User (email, password, access_level, first_name, last_name, force_password_change) VALUES (%s, %s, %s, %s, %s, %s)",(email.lower(), hashed_password, access_level, first_name, last_name, force_password_change))
     return True, None
 
+def display_sessions (token, ip_address):
+    valid, requestedby = validate_session(token, ip_address)
+    if not valid:
+        return False, "Invalid session"
+
+    authorized, _ = checkauthlevel(requestedby, ["Admin"])
+    if not authorized:
+        return False, "Insufficient permissions"
+    # Eventually I will use `order by id asc limit 50 offset 0` but for now it's easier to test with all sessions visible`
+    sessions = execute_query("SELECT BIN_TO_UUID(session_id) AS session_id, user_id, created_time, expire_time, ip_address, user_agent_header FROM Sessions WHERE is_valid = 1")
+    return True, sessions
+
+

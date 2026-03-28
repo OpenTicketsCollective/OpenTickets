@@ -118,4 +118,12 @@ def display_sessions (token, ip_address):
     sessions = execute_query("SELECT BIN_TO_UUID(session_id) AS session_id, user_id, created_time, expire_time, ip_address, user_agent_header FROM Sessions WHERE is_valid = 1")
     return True, sessions
 
+def get_user_info(token, ip_address):
+    #Returns user info (user_id, access_level, email) if session is valid
+    valid, user_id = validate_session(token, ip_address)
+    if not valid:
+        return False, "Invalid session"
+    # Get full user info
+    user_data = execute_query("SELECT user_id, email, access_level FROM User WHERE user_id = %s", (user_id,))
+    return True, user_data[0] if user_data else None
 

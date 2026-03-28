@@ -93,8 +93,8 @@ document.getElementById("dashboard").classList.remove("hidden");
                 <td>${s.user_id}</td>
                 <td>${s.created_time}</td>
                 <td>${s.expire_time}</td>
-                <td></td>
-                <td></td>
+                <td>${s.ip_address}</td>
+                <td>${s.user_agent_header}</td>
             `
             table.appendChild(row)
         })

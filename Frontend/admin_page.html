@@ -80,14 +80,16 @@ Force Password Change
 <!-- This is the section for managing active user sessions -->
 <section>
 <h2>Active Sessions</h2>
-<div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc;">
-<table border="1">
+<div style="max-height: 400px; overflow: auto; border: 1px solid #ccc;">
+<table border="1" style="white-space: nowrap;">
 <thead>
 <tr>
 <th>Session ID</th>
 <th>User ID</th>
 <th>Created</th>
 <th>Expires</th>
+<th>IP Address</th>
+<th>User Agent</th>
 </tr>
 </thead>
 <tbody id="sessionTable"></tbody>

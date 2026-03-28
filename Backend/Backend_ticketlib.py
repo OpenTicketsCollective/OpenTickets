@@ -79,7 +79,14 @@ def get_user_tickets(token, ip_address):
 		# session invalid; reject the operation
 		return False, "Invalid session"
 
-	# Fetch all tickets created by this user
-	tickets = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, ticket_description, status_code, priority_code, create_time FROM ActiveTickets WHERE created_by = %s ORDER BY create_time DESC", (user_id,))
+	# Check if user is staff (L1, L2, Admin) or regular user
+	is_staff, access_level = checkauthlevel(user_id, ["Admin", "L1", "L2"])
+	
+	if is_staff:
+		# Staff/Admin: return all tickets
+		tickets = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, ticket_description, status_code, priority_code, create_time FROM ActiveTickets ORDER BY create_time DESC")
+	else:
+		# Regular user: return only their own tickets
+		tickets = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, ticket_description, status_code, priority_code, create_time FROM ActiveTickets WHERE created_by = %s ORDER BY create_time DESC", (user_id,))
 	
 	return True, tickets if tickets else []

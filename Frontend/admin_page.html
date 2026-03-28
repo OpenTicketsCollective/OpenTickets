@@ -63,7 +63,8 @@ Force Password Change
 <!-- This is the section of the admin dashboard that allows admins to view and manage user accounts, including creating new users, deleting existing users, and resetting user passwords. -->
 <section>
 <h2>User Accounts</h2>
-<table border="1">
+<div style="max-height: 400px; overflow: auto;">
+<table>
 <thead>
 <tr>
 <th>ID</th>
@@ -75,13 +76,14 @@ Force Password Change
 </thead>
 <tbody id="userTable"></tbody>
 </table>
+</div>
 </section>
 <hr>
 <!-- This is the section for managing active user sessions -->
 <section>
 <h2>Active Sessions</h2>
-<div style="max-height: 400px; overflow: auto; border: 1px solid #ccc;">
-<table border="1" style="white-space: nowrap;">
+<div style="max-height: 400px; overflow: auto;">
+<table style="white-space: nowrap;">
 <thead>
 <tr>
 <th>Session ID</th>

@@ -98,6 +98,67 @@ button {
 	flex: 1;
 }
 
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 12px 0;
+}
+
+table thead {
+	background: #f0f4f8;
+	border-bottom: 2px solid #ddd;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+table th {
+	padding: 12px 8px;
+	text-align: left;
+	font-weight: 600;
+	color: #0a2540;
+	font-size: 13px;
+	text-transform: capitalize;
+}
+
+table td {
+	padding: 12px 8px;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+}
+
+table tbody tr:hover {
+	background: #f9f9f9;
+}
+
+input,
+textarea,
+select {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font: inherit;
+}
+
+button {
+	background: var(--accent);
+	border: none;
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+
+button:hover {
+	opacity: 0.9;
+}
+
+button:active {
+	opacity: 0.8;
+}
+
 .hidden {
 	display: none;
 }

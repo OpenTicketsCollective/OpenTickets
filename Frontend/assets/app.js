@@ -5,6 +5,29 @@ const API = "https://127.0.0.1:8000";
 function getToken() { return sessionStorage.getItem("session_token"); }
 function getIP() { return "127.0.0.1"; }
 
+//Function to convert status code ENUM to readable text
+function getStatusText(code) {
+  const statusMap = {
+    "O": "Open",
+    "C": "Closed",
+    "E": "Escalated",
+    "R": "In Review",
+    "P": "In Progress"
+  };
+  return statusMap[code] || "Unknown";
+}
+
+//Function to convert priority code ENUM to readable text
+function getPriorityText(code) {
+  const priorityMap = {
+    "L": "Low",
+    "M": "Medium",
+    "H": "High",
+    "C": "Critical"
+  };
+  return priorityMap[code] || "Unknown";
+}
+
 //DomContent loaded event listener that is used to initialize the event listeners for the login form and ticket creation form that obtains form data (username/email and password) and sends a login request.
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
@@ -75,8 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.innerHTML = `
         <td><a href="ticket.html?id=${t.ticket_uuid}">#${t.ticket_uuid}</a></td>
         <td>${t.ticket_name}</td>
-        <td>${t.ticket_description}</td>
-        <td>${t.status || "Open"}</td>
+        <td>${getPriorityText(t.priority_code)}</td>
+        <td>${getStatusText(t.status_code)}</td>
+        <td>${t.assigned_staff_name || "Unassigned"}</td>
+        <td>${new Date(t.create_time).toLocaleString()}</td> 
       `;
       tbody.appendChild(tr);
     });

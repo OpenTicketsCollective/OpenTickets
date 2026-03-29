@@ -1,6 +1,14 @@
 //This is the main JavaScript file for the OpenTickets frontend application. It handles user authentication, ticket management, and interaction with the backend API. The code is structured to listen for DOMContentLoaded events to initialize event listeners for forms and buttons, and it defines functions to load tickets, add comments, and manage user sessions. The API endpoint is set to "https://
 const API = "https://127.0.0.1:8000";
 
+//Helper function to handle 403 errors
+const checkForForbidden = (response) => {
+    if (response.status === 403) {
+        window.location.href = "/error/403";
+    }
+    return response;
+};
+
 //These functions get the session info through session storage and the IP addressed used for the API calls.
 function getToken() { return sessionStorage.getItem("session_token"); }
 function getIP() { return "127.0.0.1"; }
@@ -112,6 +120,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  const commentForm = document.getElementById("commentForm");
+  if (commentForm) {
+    commentForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const params = new URLSearchParams(window.location.search);
+      const ticket_uuid = params.get("id");
+      if (!ticket_uuid) {
+        alert("Invalid ticket ID");
+        return;
+      }
+      const form = new FormData(e.target);
+      const message = form.get("message");
+      await addComment(ticket_uuid, message);
+      commentForm.reset();
+    });
+  }
 });
 // This is the function that displays the tickets that are assigned to or created by the guest and managed by the staff.
 async function loadTicket() {
@@ -122,7 +147,7 @@ async function loadTicket() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token: getToken(), ip_address: getIP(), ticket_uuid })
-  });
+  }).then(checkForForbidden);
   const data = await res.json();
   if (!data.success) {
     alert("Cannot load ticket: " + (data.message || ""));
@@ -152,7 +177,7 @@ async function addComment(ticket_uuid, text) {
       ticket_uuid,
       comment_text: text
     })
-  });
+  }).then(checkForForbidden);
   const data = await res.json();
   if (data.success) {
     alert("Comment added");

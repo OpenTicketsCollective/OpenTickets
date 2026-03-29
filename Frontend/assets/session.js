@@ -22,10 +22,15 @@ async function validateSession() {
             document.getElementById("dashboard").classList.remove("hidden");
             loadTickets();
         }
-        
     }
+    if (window.location.pathname === "/ticket.html" || window.location.pathname === "/ticket") {
+        loadTicket()
+        }
+        
+    
     // If current page is anything else, don't redirect
-  } else {
+    } 
+    else {
     // Token invalid, clear and show login
     sessionStorage.clear();
     if (window.location.pathname !== "/" && window.location.pathname !== "/index.html" && window.location.pathname !== "/index") {

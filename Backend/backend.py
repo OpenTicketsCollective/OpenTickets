@@ -239,9 +239,20 @@ def get_ticket_detail(data: TicketDetailsRequest):
             data.ip_address,
             data.ticket_uuid
         )
+        
         if success:
             return {"success": True, "ticket": result["ticket"], "comments": result["comments"]}
-        return {"success": False, "message": result}
+        if not success:
+            # Check the error message to return appropriate HTTP status code
+            if "Invalid session" in str(result):
+                raise HTTPException(status_code=401, detail=result)
+            elif "Insufficient permissions" in str(result):
+                raise HTTPException(status_code=403, detail=result)
+            else:
+                raise HTTPException(status_code=400, detail=result)
+            
+    except HTTPException:
+        raise
     except Exception as e:
         print("TICKET DETAIL ERROR:", e)
         return {"success": False}
@@ -259,6 +270,9 @@ def add_comment(data: TicketComments):
         if success:
             return {"success": True}
         return {"success": False, "message": msg}
+    except HTTPException:
+        raise
     except Exception as e:
         print("ADD COMMENT ERROR:", e)
         return {"success": False}
+    

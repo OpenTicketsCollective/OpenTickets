@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OpenTickets — Ticket</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header>
+    <h1>OpenTickets</h1>
+    <nav>
+      <a href="staff.html">Staff Dashboard</a>
+      <a href="admin_page.html">Admin Dashboard</a>
+      <button id="logoutBtn" style="display:none;">Logout</button>
+    </nav>
+  </header>
+<!-- This is the section for submitting a new ticket if the user has an issue-->
+  <main>
+    <section class="card">
+      <h2>Report an Issue</h2>
+      <form id="ticketForm">
+<!-- This is the form for submitting a new ticket -->
+        <label>
+          Title
+          <input id="title" name="title" required maxlength="300">
+        </label>
+        <label>
+          Priority
+          <select name="priority">
+            <option value="L">Low</option>
+            <option value="M">Medium</option>
+            <option value="H">High</option>
+            <option value="C">Critical</option>
+          </select>
+        </label>
+        <label>
+          Description
+          <textarea id="description" name="description" required  maxlength="3000"></textarea>
+        </label>
+        
+        <div class="actions">
+          <button type="submit">Submit Ticket</button>
+        </div>
+      </form>
+      <div id="ticketError" class="login-error hidden"></div>
+      <div id="submitMsg" class="muted"></div>
+    </section>
+<!-- This is the section for displaying the most recent tickets -->
+  </main>
+  <script src="assets/app.js"></script>
+  <script src="assets/session.js"></script>
+</body>
+</html>

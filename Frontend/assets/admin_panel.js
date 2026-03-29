@@ -3,6 +3,14 @@ const API = "https://127.0.0.1:8000"
 
 const token = sessionStorage.getItem("session_token");
 
+// Helper function to handle 403 errors
+const checkForForbidden = (response) => {
+    if (response.status === 403) {
+        window.location.href = "/error/403";
+    }
+    return response;
+};
+
 // Only initialize dashboard if user is logged in (app.js handles login)
 if (!token) {
     return; // User not logged in, app.js will show login form
@@ -17,7 +25,7 @@ document.getElementById("dashboard").classList.remove("hidden");
         const response = await fetch(API +"/admin/users", {
             method: "POST",
             headers: {"Authorization": sessionStorage.getItem("session_token")}
-        })
+        }).then(checkForForbidden)
         const res = await response.json()
         const table = document.getElementById('userTable')
         table.innerHTML = ""
@@ -46,7 +54,7 @@ document.getElementById("dashboard").classList.remove("hidden");
             method:"POST",
             headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
             body:JSON.stringify(data)
-        })
+        }).then(checkForForbidden)
         loaduser()
         loadSessions()
     })
@@ -58,7 +66,7 @@ document.getElementById("dashboard").classList.remove("hidden");
                 method:"POST",
                 headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
                 body:JSON.stringify({userId})
-            })
+            }).then(checkForForbidden)
             loaduser()
             loadSessions()
         }
@@ -71,7 +79,7 @@ document.getElementById("dashboard").classList.remove("hidden");
                 method:"POST",
                 headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
                 body:JSON.stringify({userId})
-            })
+            }).then(checkForForbidden)
             alert("Password reset successfully")
             loaduser()
         }
@@ -82,7 +90,7 @@ document.getElementById("dashboard").classList.remove("hidden");
         const response = await fetch(API +"/admin/sessions", {
             method: "POST",
             headers:{"Authorization":sessionStorage.getItem("session_token")}
-        })
+        }).then(checkForForbidden)
         const sessions = await response.json()
         const table = document.getElementById('sessionTable')
         table.innerHTML = ""

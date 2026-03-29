@@ -106,15 +106,15 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
-          title: document.getElementById("title").value,
-          description: document.getElementById("description").value
+          title: title,
+          description: description,
+          token: getToken(),
+          ip_address: getIP()
         })
       });
       const data = await res.json();
       if (data.status) {
-        alert("Ticket created successfully");
-        form.reset();
-        loadTickets();
+        window.location.href = `ticket.html?id=${data.ticket_uuid}`;
       } else {
         alert("Error creating ticket: " + (data.message || ""));
       }
@@ -161,7 +161,7 @@ async function loadTicket() {
     commentsEl.innerHTML = "";
     (data.comments || []).forEach(c => {
       const li = document.createElement("li");
-      li.innerHTML = `<strong>${c.author}</strong> <span class="muted">${new Date(c.createdAt).toLocaleString()}</span><div>${c.message}</div>`;
+      li.innerHTML = `<strong>${c.first_name} ${c.last_name}</strong> <span class="muted">${new Date(c.create_time).toLocaleString()}</span><div>${c.comment_description}</div>`;
       commentsEl.appendChild(li);
     });
   }

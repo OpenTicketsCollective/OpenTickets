@@ -43,7 +43,7 @@ nav a {
 main {
 	padding: 20px;
 	width: 80%;
-	max-width: 1080px;
+	max-width: 1500px;
 	margin: 0 auto;
 }
 
@@ -271,4 +271,20 @@ td {
 	main {
 		padding: 12px;
 	}
+}
+
+/* Text wrapping for ticket descriptions and comments */
+#tDesc,
+#comments li {
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: pre-wrap;
+}
+
+/* Title truncation in staff table */
+#ticketsTable tbody td:nth-child(2) {
+	max-width: 300px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

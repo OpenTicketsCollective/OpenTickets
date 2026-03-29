@@ -203,6 +203,35 @@ button:active {
 	display: none;
 }
 
+.login-error {
+	background: #fee;
+	border: 1px solid #fcc;
+	border-radius: 4px;
+	color: #c33;
+	padding: 12px;
+	margin-bottom: 16px;
+	font-size: 14px;
+}
+
+.login-error.hidden {
+	display: none;
+}
+
+.email-error input {
+	border-color: #d32f2f;
+	background: #ffebee;
+}
+
+.password-error input {
+	border-color: #d32f2f;
+	background: #ffebee;
+}
+
+.email-error input:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
+}
+
 .list {
 	list-style: none;
 	padding: 0;

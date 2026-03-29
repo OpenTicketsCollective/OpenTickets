@@ -79,7 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
         loadTickets();
 
       } else {
-        alert("Login failed: " + (data.message || ""));
+        if (errorDiv) {
+          errorDiv.textContent = data.message || "Login failed. Please check your credentials.";
+          errorDiv.classList.remove("hidden");
+        }
       }
     });
   }

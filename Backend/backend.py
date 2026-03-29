@@ -96,7 +96,7 @@ def login(data: LoginData, request: Request):
         success, user_id = login_user(data.email, data.password)
         if not success:
             print(f"LOGIN FAILED for {data.email}")
-            return {"status": False, "message": "Invalid credentials"}
+            return {"status": False, "message": "Invalid email or password"}
 
         token = new_session(
             user_id,

@@ -61,3 +61,47 @@
   <script src="assets/app.js"></script>
 </body>
 </html>
+<!-- This is the section for submitting a new ticket if the user has an issue-->
+  <main>
+    <section class="card">
+      <h2>Report an Issue</h2>
+      <form id="ticketForm">
+<!-- This is the form for submitting a new ticket -->
+        <label>
+          Title
+          <input id="title" name="title" required maxlength="100">
+        </label>
+        <label>
+          Description
+          <textarea id="description" name="description" required></textarea>
+        </label>
+        <label>
+          Priority
+          <select name="priority">
+            <option value="regular">Regular</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </label>
+        <label>
+          Your name
+          <input name="creatorName">
+        </label>
+        <label>
+          Your email
+          <input name="creatorEmail" type="email">
+        </label>
+        <div class="actions">
+          <button type="submit">Submit Ticket</button>
+        </div>
+      </form>
+      <div id="submitMsg" class="muted"></div>
+    </section>
+<!-- This is the section for displaying the most recent tickets -->
+    <section class="card">
+      <h3>Recent Tickets</h3>
+      <ul id="recentTickets" class="list"></ul>
+    </section>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>

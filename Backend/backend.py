@@ -113,8 +113,17 @@ def login(data: LoginData, request: Request):
         import traceback
         traceback.print_exc()
         return {"status": False, "message": f"Error: {str(e)}"}
-        return {"status": False, "message": "Login failed"}
-        
+    
+@app.post("/validate_session")
+def validate_session_endpoint(data: TicketSession):
+    valid, user_id = validate_session(data.token, data.ip_address)
+    if not valid or user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired session"
+        )
+    return {"status": True,"user_id": user_id}
+
 #This is the function that allows admin members to view all users in the system by sending a request to the backend API that queries the database for all users and returns their information in a structured format.
 @app.post("/admin/users")
 def get_users(current_user: int = Depends(require_admin)):

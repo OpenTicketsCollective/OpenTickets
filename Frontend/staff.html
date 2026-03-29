@@ -11,31 +11,13 @@
 <!-- This is the navigation headers for all the pages that are available to staff members within the OpenTickets system -->
   <header>
     <h1>OpenTickets — Staff</h1>
-    <nav>
-      <a href="index.html">Submit Ticket</a>
+    <nav id="navbar">
       <a href="staff.html">Staff Dashboard</a>
-      <a href="admin_page.html">Admin Dashboard</a>
+      <a id="adminLink" href="admin_page.html" style="display:none;">Admin Dashboard</a>
+      <button id="logoutButton">Logout</button>
     </nav>
   </header>
   <main>
-    <section class="card" id="loginCard">
-      <h2>Staff Login</h2>
-      <form id="loginForm" method="POST">
-        <label>
-          Email
-          <input name="email" type="email" required>
-        </label>
-
-        <label>
-          Password
-          <input name="password" type="password" required>
-        </label>
-        <div class="actions">
-          <button>Login</button>
-        </div>
-      </form>
-      <div id="loginMsg" class="muted">Please login with your staff account.</div>
-    </section>
     <section class="card hidden" id="dashboard">
       <div class="row">
         <div class="col">
@@ -58,6 +40,7 @@
           </select>
         </label>
       </div>
+      <div style="max-height: 300%; overflow: auto;">
       <table id="ticketsTable">
         <thead>
           <tr>
@@ -71,9 +54,13 @@
         </thead>
         <tbody></tbody>
       </table>
+    </div>
       <div id="dashboardMsg" class="muted"></div>
     </section>
   </main>
   <script src="assets/app.js"></script>
+  <script src="assets/session.js"></script>
 </body>
 </html>
+
+

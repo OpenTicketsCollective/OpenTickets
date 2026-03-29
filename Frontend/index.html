@@ -5,57 +5,30 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>OpenTickets — Submit Ticket</title>
   <link rel="stylesheet" href="assets/styles.css">
+  
 </head>
 <body>
   <header>
     <h1>OpenTickets</h1>
-    <nav>
-      <a href="index.html">Submit Ticket</a>
-      <a href="staff.html">Staff Dashboard</a>
-    </nav>
   </header>
-
-<!-- This is the section for submitting a new ticket if the user has an issue-->
-  <main>
-    <section class="card">
-      <h2>Report an Issue</h2>
-      <form id="ticketForm">
-<!-- This is the form for submitting a new ticket -->
-        <label>
-          Title
-          <input id="title" name="title" required maxlength="100">
-        </label>
-        <label>
-          Description
-          <textarea id="description" name="description" required></textarea>
-        </label>
-        <label>
-          Priority
-          <select name="priority">
-            <option value="regular">Regular</option>
-            <option value="urgent">Urgent</option>
-          </select>
-        </label>
-        <label>
-          Your name
-          <input name="creatorName">
-        </label>
-        <label>
-          Your email
-          <input name="creatorEmail" type="email">
-        </label>
-        <div class="actions">
-          <button type="submit">Submit Ticket</button>
-        </div>
-      </form>
-      <div id="submitMsg" class="muted"></div>
-    </section>
-<!-- This is the section for displaying the most recent tickets -->
-    <section class="card">
-      <h3>Recent Tickets</h3>
-      <ul id="recentTickets" class="list"></ul>
-    </section>
-  </main>
-  <script src="assets/app.js"></script>
-</body>
-</html>
+<div class="login-container">
+  <section class="card" id="loginCard">
+    <h2>Login</h2>
+    <form id="loginForm" method="POST">
+      <label>
+        Email
+        <input name="email" type="email" required>
+      </label>
+      <label>
+        Password
+        <input name="password" type="password" required>
+      </label>
+      <div class="actions">
+        <button>Login</button>
+      </div>
+    </form>
+    <div id="loginMsg" class="muted">Please login with your active directory account.</div>
+  </section>
+</div>
+<script src="assets/app.js"></script>
+<script src="assets/session.js"></script>

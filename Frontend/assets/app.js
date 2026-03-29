@@ -28,6 +28,31 @@ function getPriorityText(code) {
   return priorityMap[code] || "Unknown";
 }
 
+//This is the ticket loading function that sends a request to the backend API to obtain the tickets for any staff member and displays them in a table format on the frontend.
+async function loadTickets() {
+  const res = await fetch(API + "/tickets/mytickets", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: getToken(), ip_address: getIP() })
+  });
+  const tickets = await res.json();
+  const tbody = document.querySelector("#ticketsTable tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  tickets.forEach(t => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><a href="ticket.html?id=${t.ticket_uuid}">#${t.ticket_uuid}</a></td>
+      <td>${t.ticket_name}</td>
+      <td>${getPriorityText(t.priority_code)}</td>
+      <td>${getStatusText(t.status_code)}</td>
+      <td>${t.assigned_staff_name || "Unassigned"}</td>
+      <td>${new Date(t.create_time).toLocaleString()}</td> 
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 //DomContent loaded event listener that is used to initialize the event listeners for the login form and ticket creation form that obtains form data (username/email and password) and sends a login request.
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
@@ -48,9 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.status) {
         sessionStorage.setItem("session_token", data.session_token);
         sessionStorage.setItem("user_id", data.user_id);
+        validateSession();
         document.getElementById("loginCard").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
         loadTickets();
+
       } else {
         alert("Login failed: " + (data.message || ""));
       }
@@ -80,30 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         alert("Error creating ticket: " + (data.message || ""));
       }
-    });
-  }
-//This is the ticket loading function that sends a request to the backend API to obtain the tickets for any staff member and displays them in a table format on the frontend.
-  async function loadTickets() {
-    const res = await fetch(API + "/tickets/mytickets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: getToken(), ip_address: getIP() })
-    });
-    const tickets = await res.json();
-    const tbody = document.querySelector("#ticketsTable tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-    tickets.forEach(t => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><a href="ticket.html?id=${t.ticket_uuid}">#${t.ticket_uuid}</a></td>
-        <td>${t.ticket_name}</td>
-        <td>${getPriorityText(t.priority_code)}</td>
-        <td>${getStatusText(t.status_code)}</td>
-        <td>${t.assigned_staff_name || "Unassigned"}</td>
-        <td>${new Date(t.create_time).toLocaleString()}</td> 
-      `;
-      tbody.appendChild(tr);
     });
   }
 });

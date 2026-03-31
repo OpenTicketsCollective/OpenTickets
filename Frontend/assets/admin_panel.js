@@ -31,16 +31,35 @@ document.getElementById("dashboard").classList.remove("hidden");
         table.innerHTML = ""
         res.forEach(u=>{
             const row = document.createElement('tr')
-            row.innerHTML=`
-                <td>${u.user_id}</td>
-                <td>${u.email}</td>
-                <td>${u.first_name} ${u.last_name}</td>
-                <td>${u.access_level}</td>
-         <td>
-         <button onclick="resetPassword(${u.user_id})">Reset Password</button>
-         <button onclick="deleteUser(${u.user_id})">Delete User</button>
-         </td>
-            `
+            
+            const idCell = document.createElement("td");
+            idCell.textContent = u.user_id;
+            row.appendChild(idCell);
+
+            const emailCell = document.createElement("td");
+            emailCell.textContent = u.email;
+            row.appendChild(emailCell);
+
+            const nameCell = document.createElement("td");
+            nameCell.textContent = `${u.first_name} ${u.last_name}`;
+            row.appendChild(nameCell);
+
+            const accessCell = document.createElement("td");
+            accessCell.textContent = u.access_level;
+            row.appendChild(accessCell);
+
+            const actionCell = document.createElement("td");
+            const resetBtn = document.createElement("button");
+            resetBtn.textContent = "Reset Password";
+            resetBtn.addEventListener("click", () => resetPassword(u.user_id));
+            actionCell.appendChild(resetBtn);
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete User";
+            deleteBtn.addEventListener("click", () => deleteUser(u.user_id));
+            actionCell.appendChild(deleteBtn);
+            row.appendChild(actionCell);
+            
             table.appendChild(row)
         })  
     }
@@ -96,14 +115,31 @@ document.getElementById("dashboard").classList.remove("hidden");
         table.innerHTML = ""
         sessions.forEach(s=>{
             const row = document.createElement('tr')
-            row.innerHTML=`
-                <td>${s.session_id}</td>
-                <td>${s.user_id}</td>
-                <td>${s.created_time}</td>
-                <td>${s.expire_time}</td>
-                <td>${s.ip_address}</td>
-                <td>${s.user_agent_header}</td>
-            `
+            
+            const sessionCell = document.createElement("td");
+            sessionCell.textContent = s.session_id;
+            row.appendChild(sessionCell);
+
+            const userCell = document.createElement("td");
+            userCell.textContent = s.user_id;
+            row.appendChild(userCell);
+
+            const createdCell = document.createElement("td");
+            createdCell.textContent = s.created_time;
+            row.appendChild(createdCell);
+
+            const expireCell = document.createElement("td");
+            expireCell.textContent = s.expire_time;
+            row.appendChild(expireCell);
+
+            const ipCell = document.createElement("td");
+            ipCell.textContent = s.ip_address;
+            row.appendChild(ipCell);
+
+            const agentCell = document.createElement("td");
+            agentCell.textContent = s.user_agent_header;
+            row.appendChild(agentCell);
+            
             table.appendChild(row)
         })
     }

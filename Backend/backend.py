@@ -45,6 +45,7 @@ class UserID(BaseModel):
 class TicketCreate(BaseModel):
     title: str
     description: str
+    priority_code: str
     token: str
     ip_address: str
 class TicketSession(BaseModel):
@@ -209,7 +210,8 @@ def create_ticket(data: TicketCreate):
             data.token,
             data.ip_address,
             data.title,
-            data.description
+            data.description,
+            data.priority_code
         )
         if success:
             return {"status": True, "ticket_uuid": result}

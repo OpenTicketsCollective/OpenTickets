@@ -49,14 +49,34 @@ async function loadTickets() {
   tbody.innerHTML = "";
   tickets.forEach(t => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><a href="ticket.html?id=${t.ticket_uuid}">#${t.ticket_uuid}</a></td>
-      <td>${t.ticket_name}</td>
-      <td>${getPriorityText(t.priority_code)}</td>
-      <td>${getStatusText(t.status_code)}</td>
-      <td>${t.assigned_staff_name || "Unassigned"}</td>
-      <td>${new Date(t.create_time).toLocaleString()}</td> 
-    `;
+    
+    const idCell = document.createElement("td");
+    const link = document.createElement("a");
+    link.href = `ticket.html?id=${t.ticket_uuid}`;
+    link.textContent = `#${t.ticket_uuid}`;
+    idCell.appendChild(link);
+    tr.appendChild(idCell);
+
+    const nameCell = document.createElement("td");
+    nameCell.textContent = t.ticket_name;
+    tr.appendChild(nameCell);
+
+    const priorityCell = document.createElement("td");
+    priorityCell.textContent = getPriorityText(t.priority_code);
+    tr.appendChild(priorityCell);
+
+    const statusCell = document.createElement("td");
+    statusCell.textContent = getStatusText(t.status_code);
+    tr.appendChild(statusCell);
+
+    const assignedCell = document.createElement("td");
+    assignedCell.textContent = t.assigned_staff_name || "Unassigned";
+    tr.appendChild(assignedCell);
+
+    const dateCell = document.createElement("td");
+    dateCell.textContent = new Date(t.create_time).toLocaleString();
+    tr.appendChild(dateCell);
+    
     tbody.appendChild(tr);
   });
 }
@@ -102,12 +122,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const form = new FormData(e.target);
       const title = form.get("title") || document.getElementById("title").value;
       const description = form.get("description") || document.getElementById("description").value;
+      const priority = form.get("priority") || "H";
       const res = await fetch(API + "/tickets/create", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
           title: title,
           description: description,
+          priority_code: priority,
           token: getToken(),
           ip_address: getIP()
         })
@@ -153,15 +175,42 @@ async function loadTicket() {
     alert("Cannot load ticket: " + (data.message || ""));
     return;
   }
-  const t = data.ticket;
-  document.getElementById("tTitle").textContent = t.ticket_name;
-  document.getElementById("tDesc").textContent = t.ticket_description;
+  const tickdata = data.ticket;
+  document.getElementById("tTitle").textContent = tickdata.ticket_name;
+  
+  // Display ticket metadata (creator name and creation time)
+  const metaEl = document.getElementById("tMeta");
+  if (metaEl) {
+    metaEl.innerHTML = "";
+    const creatorSpan = document.createElement("span");
+    creatorSpan.textContent = `Created by ${tickdata.first_name} ${tickdata.last_name}`;
+    metaEl.appendChild(creatorSpan);
+    const timeSpan = document.createElement("span");
+    timeSpan.textContent = ` • ${new Date(tickdata.create_time).toLocaleString()}`
+    metaEl.appendChild(timeSpan);
+  }
+  
+  document.getElementById("tDesc").textContent = tickdata.ticket_description;
   const commentsEl = document.getElementById("comments");
   if (commentsEl) {
     commentsEl.innerHTML = "";
-    (data.comments || []).forEach(c => {
+    (data.comments || []).forEach(commentdata => {
       const li = document.createElement("li");
-      li.innerHTML = `<strong>${c.first_name} ${c.last_name}</strong> <span class="muted">${new Date(c.create_time).toLocaleString()}</span><div>${c.comment_description}</div>`;
+      
+      const strong = document.createElement("strong");
+      strong.textContent = `${commentdata.first_name} ${commentdata.last_name}`;
+      li.appendChild(strong);
+
+      
+      const span = document.createElement("span");
+      span.className = "muted";
+      span.textContent = ` • ${new Date(commentdata.create_time).toLocaleString()}`;
+      li.appendChild(span);
+
+      const div = document.createElement("div");
+      div.textContent = commentdata.comment_description;
+      li.appendChild(div);
+      
       commentsEl.appendChild(li);
     });
   }

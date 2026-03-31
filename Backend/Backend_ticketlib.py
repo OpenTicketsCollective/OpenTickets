@@ -2,7 +2,7 @@ from Backend_dblib import execute_query
 from Backend_authlib import validate_session, checkauthlevel
 
 
-def create_ticket(token, ip_address, title, description):
+def create_ticket(token, ip_address, title, description, priority_code):
 	valid, requestedby = validate_session(token, ip_address)
 	if not valid:
 		# session invalid; reject the operation
@@ -11,13 +11,18 @@ def create_ticket(token, ip_address, title, description):
 	if not isinstance(title, str) or not isinstance(description, str):
 		raise TypeError("title and description must both be strings")
 
+	# Validate priority code
+	valid_priorities = ["L", "M", "H", "C"]
+	if priority_code not in valid_priorities:
+		return False, "Invalid priority code"
+
 	uuid_row = execute_query("SELECT UUID() AS ticket_uuid")
 	if not uuid_row:
 		return False, "Failed to generate ticket UUID"
 	ticket_uuid = uuid_row[0]["ticket_uuid"]
 
 	# session is valid; proceed with creating the ticket
-	execute_query("INSERT INTO ActiveTickets (ticket_number, created_by, ticket_name, contains_flagged_url, ticket_description) VALUES (UUID_TO_BIN(%s), %s, %s, %s, %s)", (ticket_uuid, requestedby, title, 0, description))
+	execute_query("INSERT INTO ActiveTickets (ticket_number, created_by, ticket_name, contains_flagged_url, ticket_description, priority_code) VALUES (UUID_TO_BIN(%s), %s, %s, %s, %s, %s)", (ticket_uuid, requestedby, title, 0, description, priority_code))
 	return True, ticket_uuid
 
 
@@ -61,7 +66,7 @@ def get_ticket_details(token, ip_address, ticket_uuid):
 		return False, access_error
 
 	# session is valid; proceed with fetching the ticket details
-	ticket_details = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, contains_flagged_url, ticket_description, status_code, priority_code, create_time FROM ActiveTickets WHERE ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
+	ticket_details = execute_query("SELECT BIN_TO_UUID(ActiveTickets.ticket_number) AS ticket_uuid, ActiveTickets.created_by, ActiveTickets.ticket_name, ActiveTickets.contains_flagged_url, ActiveTickets.ticket_description, ActiveTickets.status_code, ActiveTickets.priority_code, ActiveTickets.create_time, User.first_name, User.last_name FROM ActiveTickets JOIN User ON ActiveTickets.created_by = User.user_id WHERE ActiveTickets.ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
 	if not ticket_details:
 		return False, "Ticket not found"
 	

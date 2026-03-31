@@ -21,13 +21,12 @@ print(f"[OK] Using certificates from {root_dir}")
 
 # Run uvicorn with SSL
 cmd = [
-    sys.executable, "-m", "uvicorn",
+    sys.executable, "-m", "hypercorn",
     "backend:app",
     "--reload",
-    "--host", "127.0.0.1",
-    "--port", "8000",
-    "--ssl-keyfile", str(key_file),
-    "--ssl-certfile", str(cert_file),
+    "--bind", "127.0.0.1:8000",
+    "--keyfile", str(key_file),
+    "--certfile", str(cert_file)
 ]
 
 subprocess.run(cmd, cwd=backend_dir)

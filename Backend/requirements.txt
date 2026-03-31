@@ -3,4 +3,4 @@ python-dotenv<1.2.1
 argon2-cffi<25.1.0
 pydantic<=2.12.5
 fastapi<=0.135.1
-uvicorn<=0.42.0
+hypercorn[h3]<=0.18.0

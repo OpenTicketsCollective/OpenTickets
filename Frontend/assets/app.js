@@ -159,6 +159,42 @@ document.addEventListener("DOMContentLoaded", () => {
       commentForm.reset();
     });
   }
+
+  // Logout button handlers for all pages (handles both id="logoutButton" and id="logoutButton")
+  const logoutButton = document.getElementById("logoutButton");
+  if (logoutButton) {
+    logoutButton.style.display = "block";
+    logoutButton.addEventListener("click", async () => {
+      const token = sessionStorage.getItem("session_token");
+      if (!token) {
+        // No token, just redirect
+        window.location.href = "/";
+        return;
+      }
+      try {
+        // Call the logout endpoint on the backend to invalidate the session
+        const response = await fetch(API + "/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: token,
+            ip_address: getIP()
+          })
+        });
+        const data = await response.json();
+        if (data.status) {
+        } else {
+          console.warn("Logout warning:", data.message);
+        }
+      } catch (e) {
+        console.error("Logout error:", e);
+      }
+      // Clear local session storage and redirect to login
+      sessionStorage.removeItem("session_token");
+      sessionStorage.removeItem("user_id");
+      window.location.href = "/";
+    });
+  }
 });
 // This is the function that displays the tickets that are assigned to or created by the guest and managed by the staff.
 async function loadTicket() {

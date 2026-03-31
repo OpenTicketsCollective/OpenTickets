@@ -27,6 +27,7 @@ header {
 	background: #0a2540;
 	color: #fff;
 	padding: 12px 20px;
+	flex-wrap: nowrap;
 }
 
 header h1 {
@@ -34,10 +35,23 @@ header h1 {
 	font-size: 18px;
 }
 
+nav {
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+	gap: 12px;
+	flex-wrap: nowrap;
+	flex-shrink: 0;
+}
+
 nav a {
 	color: #cfe5ff;
-	margin-left: 12px;
 	text-decoration: none;
+	flex-shrink: 0;
+}
+
+nav button {
+	flex-shrink: 0;
 }
 
 main {

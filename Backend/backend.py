@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
-from Backend_authlib import login_user, new_session, validate_session, create_user, checkauthlevel, display_sessions
+from Backend_authlib import login_user, new_session, validate_session, create_user, checkauthlevel, display_sessions, logout_session
 import Backend_ticketlib
 from Backend_dblib import execute_query
 
@@ -124,6 +124,15 @@ def validate_session_endpoint(data: TicketSession):
             detail="Invalid or expired session"
         )
     return {"status": True,"user_id": user_id}
+
+@app.post("/logout")
+def logout(data: TicketSession):
+    try:
+        logout_session(data.token)
+        print("[LOGOUT] Session invalidated successfully")
+        return {"status": True, "message": "Logged out successfully"}
+    except Exception as e:
+        return {"status": False, "message": f"Error: {str(e)}"}
 
 #This is the function that allows admin members to view all users in the system by sending a request to the backend API that queries the database for all users and returns their information in a structured format.
 @app.post("/admin/users")

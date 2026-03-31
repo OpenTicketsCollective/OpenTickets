@@ -68,7 +68,14 @@ def validate_session(token, ip_address):
     return False, None
 
 def logout_session(token):
-    execute_query("UPDATE Sessions SET is_valid = 0 WHERE session_token = %s", (token,))
+    # Invalidate a session token by setting is_valid to 0
+    if not isinstance(token, str):
+        raise TypeError(f"token must be str, got {type(token).__name__}")
+    try:
+        execute_query("UPDATE Sessions SET is_valid = 0 WHERE session_token = %s", (token,))
+        return True
+    except Exception as e:
+        return False
 
 
 def checkauthlevel(user_id, permitted_access_levels):

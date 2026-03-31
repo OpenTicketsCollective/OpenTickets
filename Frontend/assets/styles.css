@@ -288,3 +288,12 @@ td {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
+/* Text wrapping for ticket title, descriptions and comments */
+#tTitle,
+#tDesc,
+#comments li {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+}

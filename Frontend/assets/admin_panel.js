@@ -11,14 +11,6 @@ const checkForForbidden = (response) => {
     return response;
 };
 
-// Only initialize dashboard if user is logged in (app.js handles login)
-if (!token) {
-    return; // User not logged in, app.js will show login form
-}
-
-// User is logged in - show dashboard and initialize admin functions
-document.getElementById("loginCard").classList.add("hidden");
-document.getElementById("dashboard").classList.remove("hidden");
 
 //User management system for the admin dashboard so that the admin can manage user accounts effectively
     async function loaduser(){

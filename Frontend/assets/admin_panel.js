@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-const API = "https://127.0.0.1:8000"
+const API = "/api"
 
 const token = sessionStorage.getItem("session_token");
 

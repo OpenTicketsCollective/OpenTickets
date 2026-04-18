@@ -41,8 +41,8 @@ def _get_pool() -> MySQLConnectionPool:
     db_user = os.getenv("OT_DB_USER")
     db_password = os.getenv("OT_DB_PASSWORD")
     db_pool_name = os.getenv("OT_DB_POOL_NAME")
-    db_pool_size = int(os.getenv("OT_DB_POOL_SIZE"))
-    db_connect_timeout = int(os.getenv("OT_DB_CONNECT_TIMEOUT"))
+    db_pool_size = int(os.getenv("OT_DB_POOL_SIZE", "5"))
+    db_connect_timeout = int(os.getenv("OT_DB_CONNECT_TIMEOUT", "10"))
 
     try:
         #create the connection pool

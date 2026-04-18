@@ -1,5 +1,5 @@
-//This is the main JavaScript file for the OpenTickets frontend application. It handles user authentication, ticket management, and interaction with the backend API. The code is structured to listen for DOMContentLoaded events to initialize event listeners for forms and buttons, and it defines functions to load tickets, add comments, and manage user sessions. The API endpoint is set to "https://
-const API = "https://127.0.0.1:8000";
+//This is the main JavaScript file for the OpenTickets frontend application. It handles user authentication, ticket management, and interaction with the backend API. The code is structured to listen for DOMContentLoaded events to initialize event listeners for forms and buttons, and it defines functions to load tickets, add comments, and manage user sessions. The API endpoint is set to use the current origin with /api prefix for nginx routing.
+const API = "/api";
 
 //Helper function to handle 403 errors
 const checkForForbidden = (response) => {
@@ -11,7 +11,7 @@ const checkForForbidden = (response) => {
 
 //These functions get the session info through session storage and the IP addressed used for the API calls.
 function getToken() { return sessionStorage.getItem("session_token"); }
-function getIP() { return "127.0.0.1"; }
+function getIP() { return window.location.hostname; }
 
 //Function to convert status code ENUM to readable text
 function getStatusText(code) {

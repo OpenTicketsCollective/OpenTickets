@@ -1,12 +1,18 @@
 async function validateSession() {
-  const authAPI = "https://127.0.0.1:8000";
+  const authAPI = "/api";
+  const token = sessionStorage.getItem("session_token");
+  
+  // Skip validation if no token exists
+  if (!token) {
+    return;
+  }
 
   const res = await fetch(authAPI + "/validate_session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ 
-      token: sessionStorage.getItem("session_token"),
-      ip_address: "127.0.0.1"
+      token: token,
+      ip_address: window.location.hostname
     })
   });
 

@@ -1,20 +1,39 @@
 # these are the backend API endpoints for the OpenTickets application alongside all the necessary imports and setup for the FastAPI.
 from fastapi import FastAPI, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from Backend_authlib import login_user, new_session, validate_session, create_user, checkauthlevel, display_sessions, logout_session
 import Backend_ticketlib
 from Backend_dblib import execute_query
 
 app = FastAPI()
+
+# Custom exception handler to hide detailed validation errors (security: prevent info disclosure)
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": "Invalid request data"}
+    )
 #This is the CORS middleware setup that allows the frontend application to communicate with the backend API without the program being blocked by CORS policy.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://127.0.0.1:5000",
+        # Nginx reverse proxy (HTTPS on 443)
+        "https://localhost",
+        "https://127.0.0.1",
+        "https://localhost:443",
+        "https://127.0.0.1:443",
+        # Legacy direct connections (if bypassing nginx)
         "https://localhost:5000",
+        "https://127.0.0.1:5000",
+        # HTTP fallback for development
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://localhost:5000",
         "http://127.0.0.1:5000",
-        "http://localhost:5000"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],

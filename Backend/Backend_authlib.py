@@ -6,11 +6,6 @@ import time
 import datetime
 from os import urandom
 
-
-
-
-
-
 def login_user(email, password):
     authuser = execute_query("Select user_id from User where email = %s", (email,))
     if not authuser:

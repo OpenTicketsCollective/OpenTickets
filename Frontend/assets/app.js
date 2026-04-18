@@ -52,7 +52,7 @@ async function loadTickets() {
     
     const idCell = document.createElement("td");
     const link = document.createElement("a");
-    link.href = `ticket.html?id=${t.ticket_uuid}`;
+    link.href = `/ticket?id=${t.ticket_uuid}`;
     link.textContent = `#${t.ticket_uuid}`;
     idCell.appendChild(link);
     tr.appendChild(idCell);
@@ -102,8 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.setItem("session_token", data.session_token);
         sessionStorage.setItem("user_id", data.user_id);
         validateSession();
-        document.getElementById("loginCard").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
+        const loginCard = document.getElementById("loginCard");
+        const dashboard = document.getElementById("dashboard");
+        if (loginCard) loginCard.classList.add("hidden");
+        if (dashboard) dashboard.classList.remove("hidden");
         loadTickets();
 
       } else {
@@ -136,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json();
       if (data.status) {
-        window.location.href = `ticket.html?id=${data.ticket_uuid}`;
+        window.location.href = `/ticket?id=${data.ticket_uuid}`;
       } else {
         alert("Error creating ticket: " + (data.message || ""));
       }

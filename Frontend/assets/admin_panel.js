@@ -139,10 +139,10 @@ loaduser()
 loadSessions()
 
 // Show logout button for authenticated users
-document.getElementById("logoutBtn").style.display = "block";
+document.getElementById("logoutButton").style.display = "block";
 
 // Logout handler
-document.getElementById("logoutBtn").addEventListener("click", () => {
+document.getElementById("logoutButton").addEventListener("click", () => {
     sessionStorage.removeItem("session_token");
     sessionStorage.removeItem("user_id");
     location.reload();

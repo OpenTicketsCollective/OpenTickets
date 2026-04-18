@@ -18,18 +18,34 @@ async function validateSession() {
 
   const data = await res.json();
   if (data.status) {
-    // Session valid
+    // Session valid - check if user is admin
+    try {
+      const adminRes = await fetch(authAPI + "/check-admin", {
+        method: "POST",
+        headers: { "Authorization": token }
+      });
+      if (adminRes.ok) {
+        const adminData = await adminRes.json();
+        if (adminData.is_admin) {
+          const adminLink = document.getElementById("adminLink");
+          if (adminLink) adminLink.style.display = "inline";
+        }
+      }
+    } catch (err) {
+      console.error("Admin check failed:", err);
+    }
+    
     if (window.location.pathname === "/" || window.location.pathname === "/index.html" || window.location.pathname === "/index") {
       // Current page is root/index, redirect to staff dashboard
-      window.location.href = "staff.html";
+      window.location.href = "/staff";
     }
-    if (window.location.pathname === "/staff.html" || window.location.pathname === "/staff") {
+    if (window.location.pathname === "/staff" || window.location.pathname === "/staff.html") {
         if (document.getElementById("dashboard")) {
             document.getElementById("dashboard").classList.remove("hidden");
             loadTickets();
         }
     }
-    if (window.location.pathname === "/ticket.html" || window.location.pathname === "/ticket") {
+    if (window.location.pathname === "/ticket" || window.location.pathname === "/ticket.html") {
         loadTicket()
         }
         
@@ -39,7 +55,7 @@ async function validateSession() {
     else {
     // Token invalid, clear and show login
     sessionStorage.clear();
-    if (window.location.pathname !== "/" && window.location.pathname !== "/index.html" && window.location.pathname !== "/index") {
+    if (window.location.pathname !== "/" && window.location.pathname !== "/index.html" && window.location.pathname !== "/index" && window.location.pathname !== "/index") {
       window.location.href = "/";
     }
   }

@@ -21,11 +21,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        # Nginx reverse proxy (HTTPS on 443)
+        # Localhost
         "https://localhost",
         "https://127.0.0.1",
         "https://localhost:443",
         "https://127.0.0.1:443",
+        # LAN IP
+        "https://192.168.254.162",
+        "https://192.168.254.162:443",
         # Legacy direct connections (if bypassing nginx)
         "https://localhost:5000",
         "https://127.0.0.1:5000",
@@ -89,8 +92,10 @@ def get_current_user(request: Request):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing session token"
         )
+    # Get client IP from X-Real-IP header (set by nginx) or fallback to request.client.host
+    ip_address = request.headers.get("X-Real-IP", request.client.host)
 
-    valid, user_id = validate_session(token, request.client.host)
+    valid, user_id = validate_session(token, ip_address)
     if not valid or user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -118,9 +123,11 @@ def login(data: LoginData, request: Request):
             print(f"LOGIN FAILED for {data.email}")
             return {"status": False, "message": "Invalid email or password"}
 
+        # Get client IP from X-Real-IP header (set by nginx) or fallback to request.client.host
+        client_ip = request.headers.get("X-Real-IP", request.client.host)
         token = new_session(
             user_id,
-            request.client.host,
+            client_ip,
             request.headers.get("user-agent")
         )
         return {
@@ -135,8 +142,10 @@ def login(data: LoginData, request: Request):
         return {"status": False, "message": f"Error: {str(e)}"}
     
 @app.post("/validate_session")
-def validate_session_endpoint(data: TicketSession):
-    valid, user_id = validate_session(data.token, data.ip_address)
+def validate_session_endpoint(data: TicketSession, request: Request):
+    # Get client IP from X-Real-IP header (set by nginx) or fallback to request.client.host
+    client_ip = request.headers.get("X-Real-IP", request.client.host)
+    valid, user_id = validate_session(data.token, client_ip)
     if not valid or user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -152,6 +161,16 @@ def logout(data: TicketSession):
         return {"status": True, "message": "Logged out successfully"}
     except Exception as e:
         return {"status": False, "message": f"Error: {str(e)}"}
+
+@app.post("/check-admin")
+def check_admin(current_user: int = Depends(get_current_user)):
+    """Check if current user has Admin access level"""
+    try:
+        is_admin, access_level = checkauthlevel(current_user, ["Admin"])
+        return {"is_admin": is_admin, "access_level": access_level}
+    except Exception as e:
+        print("CHECK ADMIN ERROR:", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 #This is the function that allows admin members to view all users in the system by sending a request to the backend API that queries the database for all users and returns their information in a structured format.
 @app.post("/admin/users")
@@ -170,9 +189,11 @@ def get_users(current_user: int = Depends(require_admin)):
 @app.post("/admin/createuser")
 def admin_create_user(data: UserCreate, request: Request, current_user: int = Depends(require_admin)):
     try:
+        # Get client IP from X-Real-IP header (set by nginx) or fallback to request.client.host
+        client_ip = request.headers.get("X-Real-IP", request.client.host)
         success, msg = create_user(
             request.headers.get("Authorization"),
-            request.client.host,
+            client_ip,
             data.email,
             data.password,
             data.access_level,
@@ -213,7 +234,9 @@ def reset_password(data: UserID, current_user: int = Depends(require_admin)):
 def get_sessions(request: Request, current_user: int = Depends(require_admin)):
     try:
         token = request.headers.get("Authorization")
-        success, result = display_sessions(token, request.client.host)
+        # Get client IP from X-Real-IP header (set by nginx) or fallback to request.client.host
+        client_ip = request.headers.get("X-Real-IP", request.client.host)
+        success, result = display_sessions(token, client_ip)
         
         if not success:
             # Check the error message to return appropriate HTTP status code
@@ -232,11 +255,12 @@ def get_sessions(request: Request, current_user: int = Depends(require_admin)):
         raise HTTPException(status_code=500, detail="Failed to fetch sessions")
         
 @app.post("/tickets/create")
-def create_ticket(data: TicketCreate):
+def create_ticket(data: TicketCreate, request: Request):
     try:
+        client_ip = request.headers.get("X-Real-IP", request.client.host)
         success, result = Backend_ticketlib.create_ticket(
             data.token,
-            data.ip_address,
+            client_ip,
             data.title,
             data.description,
             data.priority_code
@@ -250,9 +274,10 @@ def create_ticket(data: TicketCreate):
 
 
 @app.post("/tickets/mytickets")
-def get_my_tickets(data: TicketSession):
+def get_my_tickets(data: TicketSession, request: Request):
     try:
-        success, tickets = Backend_ticketlib.get_user_tickets(data.token, data.ip_address)
+        client_ip = request.headers.get("X-Real-IP", request.client.host)
+        success, tickets = Backend_ticketlib.get_user_tickets(data.token, client_ip)
         if success:
             return tickets or []
         return []
@@ -261,39 +286,38 @@ def get_my_tickets(data: TicketSession):
         return []
     
 @app.post("/tickets/detail")
-def get_ticket_detail(data: TicketDetailsRequest):
-
-    try:
-        success, result = Backend_ticketlib.get_ticket_details(
-            data.token,
-            data.ip_address,
-            data.ticket_uuid
-        )
-        
-        if success:
-            return {"success": True, "ticket": result["ticket"], "comments": result["comments"]}
-        if not success:
-            # Check the error message to return appropriate HTTP status code
-            if "Invalid session" in str(result):
-                raise HTTPException(status_code=401, detail=result)
-            elif "Insufficient permissions" in str(result):
-                raise HTTPException(status_code=403, detail=result)
-            else:
-                raise HTTPException(status_code=400, detail=result)
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        print("TICKET DETAIL ERROR:", e)
-        return {"success": False}
+def get_ticket_detail(data: TicketDetailsRequest, request: Request):
+    # Get client IP from X-Real-IP header (set by nginx) or fallback to request.client.host
+    client_ip = request.headers.get("X-Real-IP", request.client.host)
+    
+    success, result = Backend_ticketlib.get_ticket_details(
+        data.token,
+        client_ip,
+        data.ticket_uuid
+    )
+    
+    if success:
+        return {"success": True, "ticket": result["ticket"], "comments": result["comments"]}
+    
+    # Check the error message to return appropriate HTTP status code
+    error_msg = str(result)
+    if "Invalid session" in error_msg:
+        raise HTTPException(status_code=401, detail=error_msg)
+    elif "Insufficient permissions" in error_msg:
+        raise HTTPException(status_code=403, detail=error_msg)
+    elif "Ticket not found" in error_msg:
+        raise HTTPException(status_code=404, detail=error_msg)
+    else:
+        raise HTTPException(status_code=400, detail=error_msg)
                 
 @app.post("/tickets/comment")
-def add_comment(data: TicketComments):
-
+def add_comment(data: TicketComments, request: Request):
+    # Get client IP from X-Real-IP header (set by nginx) or fallback to request.client.host
+    client_ip = request.headers.get("X-Real-IP", request.client.host)
     try:
         success, msg = Backend_ticketlib.create_comment(
             data.token,
-            data.ip_address,
+            client_ip,
             data.ticket_uuid,
             data.comment_text
         )

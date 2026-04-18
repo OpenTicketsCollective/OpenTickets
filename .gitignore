@@ -4,8 +4,21 @@ Backend/__pycache__/
 Backend/tests/__pycache__/
 Backend/.pytest_cache/
 Backend/.env
-Docker/*
-# Node.js (./Frontend)
+
+# Frontend (./Frontend)
 Frontend/node_modules/
 Frontend/dist/
 Frontend/.env
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Docker runtime data
+certs/
+mysql-data/
+
+# IDE
+.vscode/
+.idea/

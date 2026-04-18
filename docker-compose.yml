@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.mysql
+    container_name: opentickets-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: opentickets_db
+      MYSQL_USER: ${MYSQL_APP_USER}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD}
+    volumes:
+      - ./Docker/init-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - mysql-data:/var/lib/mysql
+    networks:
+      - opentickets-network
+    healthcheck:
+      test: ["CMD", "mysql", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.backend
+    container_name: opentickets-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      OT_DB_HOST: mysql
+      OT_DB_PORT: 3306
+      OT_DB_NAME: opentickets_db
+      OT_DB_USER: ${MYSQL_APP_USER}
+      OT_DB_PASSWORD: ${MYSQL_APP_PASSWORD}
+      OT_DB_POOL_NAME: opentickets_pool
+    networks:
+      - opentickets-network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.nginx
+    container_name: opentickets-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    volumes:
+      - certs:/etc/nginx/certs
+    networks:
+      - opentickets-network
+
+volumes:
+  mysql-data:
+    driver: local
+  certs:
+    driver: local
+
+networks:
+  opentickets-network:
+    driver: bridge

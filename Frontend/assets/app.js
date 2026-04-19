@@ -207,10 +207,10 @@ async function loadTicket() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token: getToken(), ip_address: getIP(), ticket_uuid })
-  }).then(checkForForbidden);
+  }).then(checkForForbidden).then(checkForNotFound);
   const data = await res.json();
   if (!data.success) {
-    alert("Cannot load ticket: " + (data.message || ""));
+    window.location.href = "/Error/404.html";
     return;
   }
   const tickdata = data.ticket;

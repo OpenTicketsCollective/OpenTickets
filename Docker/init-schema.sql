@@ -135,6 +135,24 @@ CREATE TABLE IF NOT EXISTS `opentickets_db`.`TicketAttachments` (
 ENGINE = InnoDB;
 
 
+-- TEMPORARY: Insert test admin account for development/testing
+INSERT IGNORE INTO `opentickets_db`.`User` (
+  `email`, 
+  `password`, 
+  `access_level`, 
+  `first_name`, 
+  `last_name`, 
+  `force_password_change`
+) VALUES (
+  'admin@example.com',
+  '$argon2id$v=19$m=65536,t=3,p=4$epZ8q95eL8AZNszOjBzcBA$Dchueac1nY9268lTDgTHbBN6yWfzUYE6oD3OfbMIWgE',
+  'Admin',
+  'Admin',
+  'User',
+  0
+);
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

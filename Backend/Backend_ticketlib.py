@@ -66,17 +66,21 @@ def get_ticket_details(token, ip_address, ticket_uuid):
 		return False, access_error
 
 	# session is valid; proceed with fetching the ticket details
-	ticket_details = execute_query("SELECT BIN_TO_UUID(ActiveTickets.ticket_number) AS ticket_uuid, ActiveTickets.created_by, ActiveTickets.ticket_name, ActiveTickets.contains_flagged_url, ActiveTickets.ticket_description, ActiveTickets.status_code, ActiveTickets.priority_code, ActiveTickets.create_time, User.first_name, User.last_name FROM ActiveTickets JOIN User ON ActiveTickets.created_by = User.user_id WHERE ActiveTickets.ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
-	if not ticket_details:
+	try:
+		ticket_details = execute_query("SELECT BIN_TO_UUID(ActiveTickets.ticket_number) AS ticket_uuid, ActiveTickets.created_by, ActiveTickets.ticket_name, ActiveTickets.contains_flagged_url, ActiveTickets.ticket_description, ActiveTickets.status_code, ActiveTickets.priority_code, ActiveTickets.create_time, User.first_name, User.last_name FROM ActiveTickets JOIN User ON ActiveTickets.created_by = User.user_id WHERE ActiveTickets.ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
+		if not ticket_details:
+			return False, "Ticket not found"
+		
+		# Fetch all comments for this ticket
+		comments = execute_query("SELECT BIN_TO_UUID(TicketComments.comment_number) AS comment_uuid, User.first_name, User.last_name, TicketComments.comment_description, TicketComments.create_time FROM TicketComments JOIN User ON TicketComments.created_by = User.user_id WHERE TicketComments.ticket_number = UUID_TO_BIN(%s) ORDER BY TicketComments.create_time ASC", (ticket_uuid,))
+		
+		return True, {
+			"ticket": ticket_details[0],
+			"comments": comments if comments else []
+		}
+	except Exception as e:
+		# Catch any database errors (invalid UUID format, etc.) and treat as ticket not found
 		return False, "Ticket not found"
-	
-	# Fetch all comments for this ticket
-	comments = execute_query("SELECT BIN_TO_UUID(TicketComments.comment_number) AS comment_uuid, User.first_name, User.last_name, TicketComments.comment_description, TicketComments.create_time FROM TicketComments JOIN User ON TicketComments.created_by = User.user_id WHERE TicketComments.ticket_number = UUID_TO_BIN(%s) ORDER BY TicketComments.create_time ASC", (ticket_uuid,))
-	
-	return True, {
-		"ticket": ticket_details[0],
-		"comments": comments if comments else []
-	}
 
 def get_user_tickets(token, ip_address):
 	valid, user_id = validate_session(token, ip_address)

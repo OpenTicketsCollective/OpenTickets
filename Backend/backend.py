@@ -82,6 +82,8 @@ class TicketComments(BaseModel):
     ip_address: str
     token: str
     comment_text: str
+class AdminResetPassword(BaseModel):
+    userId: int
 
 # Dependencies (using authlib)
 def get_current_user(request: Request):

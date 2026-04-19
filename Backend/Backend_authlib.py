@@ -18,14 +18,19 @@ def login_user(email, password):
     hashed = execute_query("SELECT password FROM User WHERE user_id = %s", (user_id,))
     if not hashed:
         print(f"[LOGIN] Could not fetch hashed password for user {user_id}")
-        return False, None
+        return False, None, False
     
     try:
         # ph().verify() raises an exception if password is wrong
         # Signature: verify(hash, password)
         ph().verify(hashed[0]["password"], password)
+
+        # Check force_password_change flag
+        force_check = execute_query("SELECT force_password_change FROM User WHERE user_id = %s", (user_id,))
+        force_change = force_check[0]["force_password_change"] if force_check else False
+        
         print(f"[LOGIN] Password verification passed for {email}")
-        return True, user_id
+        return True, user_id, bool(force_change)
     except Exception as e:
         print(f"[LOGIN] Password verification failed for {email}: {type(e).__name__}")
         return False, None

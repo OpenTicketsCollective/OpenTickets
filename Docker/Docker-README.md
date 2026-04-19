@@ -5,7 +5,7 @@ Create an account and login
 In your terminal now, cd to OpenTickets
 
 1. 
-`Docker Login`
+`Docker login`
 2. 
 `Docker\generate-secrets.sh`
 3. 

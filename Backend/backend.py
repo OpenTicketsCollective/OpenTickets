@@ -120,7 +120,7 @@ def require_admin(current_user: int = Depends(get_current_user)):
 @app.post("/login")
 def login(data: LoginData, request: Request):
     try:
-        success, user_id = login_user(data.email, data.password)
+        success, user_id, force_change = login_user(data.email, data.password)
         if not success:
             print(f"LOGIN FAILED for {data.email}")
             return {"status": False, "message": "Invalid email or password"}
@@ -136,6 +136,7 @@ def login(data: LoginData, request: Request):
             "status": True,
             "session_token": token,
             "user_id": user_id
+            "force_password_change": force_change
         }
     except Exception as e:
         print(f"LOGIN ERROR: {e}")

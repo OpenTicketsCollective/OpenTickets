@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 const API = "/api"
 
-const token = sessionStorage.getItem("session_token");
+const token = localStorage.getItem("session_token");
 
 // Helper function to handle 403 errors
 const checkForForbidden = (response) => {
@@ -16,7 +16,7 @@ const checkForForbidden = (response) => {
     async function loaduser(){
         const response = await fetch(API +"/admin/users", {
             method: "POST",
-            headers: {"Authorization": sessionStorage.getItem("session_token")}
+            headers: {"Authorization": localStorage.getItem("session_token")}
         }).then(checkForForbidden)
         const res = await response.json()
         const table = document.getElementById('userTable')
@@ -63,7 +63,7 @@ const checkForForbidden = (response) => {
         const data = Object.fromEntries(form.entries())
         await fetch(API + "/admin/createuser", {
             method:"POST",
-            headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
+            headers:{"Content-Type":"application/json", "Authorization":localStorage.getItem("session_token")},
             body:JSON.stringify(data)
         }).then(checkForForbidden)
         loaduser()
@@ -75,7 +75,7 @@ const checkForForbidden = (response) => {
         if(confirm("Are you sure you want to delete this user?")){
             await fetch(API + "/admin/deleteuser", {
                 method:"POST",
-                headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
+                headers:{"Content-Type":"application/json", "Authorization":localStorage.getItem("session_token")},
                 body:JSON.stringify({userId})
             }).then(checkForForbidden)
             loaduser()
@@ -88,7 +88,7 @@ const checkForForbidden = (response) => {
         if(confirm("Are you sure you want to reset this user's password?")){
             await fetch(API + "/admin/resetpassword", {
                 method:"POST",
-                headers:{"Content-Type":"application/json", "Authorization":sessionStorage.getItem("session_token")},
+                headers:{"Content-Type":"application/json", "Authorization":localStorage.getItem("session_token")},
                 body:JSON.stringify({userId})
             }).then(checkForForbidden)
             alert("Password reset successfully")
@@ -100,7 +100,7 @@ const checkForForbidden = (response) => {
     async function loadSessions(){
         const response = await fetch(API +"/admin/sessions", {
             method: "POST",
-            headers:{"Authorization":sessionStorage.getItem("session_token")}
+            headers:{"Authorization":localStorage.getItem("session_token")}
         }).then(checkForForbidden)
         const sessions = await response.json()
         const table = document.getElementById('sessionTable')
@@ -143,8 +143,8 @@ document.getElementById("logoutButton").style.display = "block";
 
 // Logout handler
 document.getElementById("logoutButton").addEventListener("click", () => {
-    sessionStorage.removeItem("session_token");
-    sessionStorage.removeItem("user_id");
+    localStorage.removeItem("session_token");
+    localStorage.removeItem("user_id");
     location.reload();
 });
 })

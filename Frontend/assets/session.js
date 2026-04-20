@@ -1,6 +1,6 @@
 async function validateSession() {
   const authAPI = "/api";
-  const token = sessionStorage.getItem("session_token");
+  const token = localStorage.getItem("session_token");
   
   // Skip validation if no token exists
   if (!token) {
@@ -54,7 +54,7 @@ async function validateSession() {
     } 
     else {
     // Token invalid, clear and show login
-    sessionStorage.clear();
+    localStorage.clear();
     if (window.location.pathname !== "/" && window.location.pathname !== "/index.html" && window.location.pathname !== "/index" && window.location.pathname !== "/index") {
       window.location.href = "/";
     }

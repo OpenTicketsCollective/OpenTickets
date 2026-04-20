@@ -10,7 +10,7 @@ const checkForForbidden = (response) => {
 };
 
 //These functions get the session info through session storage and the IP addressed used for the API calls.
-function getToken() { return sessionStorage.getItem("session_token"); }
+function getToken() { return localStorage.getItem("session_token"); }
 function getIP() { return window.location.hostname; }
 
 //Function to convert status code ENUM to readable text
@@ -99,8 +99,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json();
       if (data.status) {
-        sessionStorage.setItem("session_token", data.session_token);
-        sessionStorage.setItem("user_id", data.user_id);
+        localStorage.setItem("session_token", data.session_token);
+        localStorage.setItem("user_id", data.user_id);
         validateSession();
         const loginCard = document.getElementById("loginCard");
         const dashboard = document.getElementById("dashboard");
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutButton) {
     logoutButton.style.display = "block";
     logoutButton.addEventListener("click", async () => {
-      const token = sessionStorage.getItem("session_token");
+      const token = localStorage.getItem("session_token");
       if (!token) {
         // No token, just redirect
         window.location.href = "/";
@@ -192,8 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Logout error:", e);
       }
       // Clear local session storage and redirect to login
-      sessionStorage.removeItem("session_token");
-      sessionStorage.removeItem("user_id");
+      localStorage.removeItem("session_token");
+      localStorage.removeItem("user_id");
       window.location.href = "/";
     });
   }

@@ -18,14 +18,19 @@ def login_user(email, password):
     hashed = execute_query("SELECT password FROM User WHERE user_id = %s", (user_id,))
     if not hashed:
         print(f"[LOGIN] Could not fetch hashed password for user {user_id}")
-        return False, None
+        return False, None, False
     
     try:
         # ph().verify() raises an exception if password is wrong
         # Signature: verify(hash, password)
         ph().verify(hashed[0]["password"], password)
+
+        # Check force_password_change flag
+        force_check = execute_query("SELECT force_password_change FROM User WHERE user_id = %s", (user_id,))
+        force_change = force_check[0]["force_password_change"] if force_check else False
+        
         print(f"[LOGIN] Password verification passed for {email}")
-        return True, user_id
+        return True, user_id, bool(force_change)
     except Exception as e:
         print(f"[LOGIN] Password verification failed for {email}: {type(e).__name__}")
         return False, None
@@ -129,3 +134,36 @@ def get_user_info(token, ip_address):
     user_data = execute_query("SELECT user_id, email, access_level FROM User WHERE user_id = %s", (user_id,))
     return True, user_data[0] if user_data else None
 
+def admin_reset_password(admin_token: str, ip_address: str, target_user_id: int):
+    valid, requestedby = validate_session(admin_token, ip_address)
+    if not valid:
+        return False, "Invalid Session"
+
+    authorized, _ = checkauthlevel(requestedby, ["Admin"])
+    if not authorized:
+        return False, "insufficient permissions"
+    
+    user_exists = execute_query("SELECT user_id FROM User WHERE user_id = %s", (target_user_id))
+    if not user_exists:
+        return False, "User not found"
+
+    # Generate a secure temporary passowrd
+    temp_password = base64.urlsafe_b64encode(urandom(16)).rstrip(b'=').decode()[:16]
+
+    # Hash the temporary passoword using Password Hasher
+    hashed_temp = PasswordHasher().hash(temp_password)
+
+    # Update the user's password and force change flag
+    execute_query("""
+        UPDATE User
+        SET password = %s,
+            force_password_change = 1
+        WHERE user_id = %s
+    """, (hashed_temp, target_user_id))
+
+    # Invalidate all existing sessions of this user
+    execute_query("UPDATE Sessions SET is_valid = 0 WHERE user_id = %s", (target_user_id))
+
+    print(f"[ADMIN RESET] Passowrd reset for user {target_user_id} by admin {requestedby}")
+
+    return True, temp_password # Return temp password to Admin

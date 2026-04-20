@@ -1,7 +1,6 @@
 from Backend_dblib import execute_query
 from argon2 import PasswordHasher as ph
 import base64
-import hashlib
 import time
 import datetime
 from os import urandom
@@ -151,7 +150,7 @@ def admin_reset_password(admin_token: str, ip_address: str, target_user_id: int)
     temp_password = base64.urlsafe_b64encode(urandom(16)).rstrip(b'=').decode()[:16]
 
     # Hash the temporary passoword using Password Hasher
-    hashed_temp = PasswordHasher().hash(temp_password)
+    hashed_temp = ph().hash(temp_password)
 
     # Update the user's password and force change flag
     execute_query("""

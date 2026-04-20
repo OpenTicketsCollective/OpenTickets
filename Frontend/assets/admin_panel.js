@@ -6,7 +6,7 @@ const token = localStorage.getItem("session_token");
 // Helper function to handle 403 errors
 const checkForForbidden = (response) => {
     if (response.status === 403) {
-        window.location.href = "/error/403";
+        window.location.href = "/Error/403";
     }
     return response;
 };

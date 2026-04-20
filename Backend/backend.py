@@ -135,7 +135,7 @@ def login(data: LoginData, request: Request):
         return {
             "status": True,
             "session_token": token,
-            "user_id": user_id
+            "user_id": user_id,
             "force_password_change": force_change
         }
     except Exception as e:

@@ -4,6 +4,9 @@ async function validateSession() {
   
   // Skip validation if no token exists
   if (!token) {
+    if (window.location.pathname !== "/" && window.location.pathname !== "/index.html" && window.location.pathname !== "/index" && window.location.pathname !== "/index") {
+      window.location.href = "/";
+    }
     return;
   }
 

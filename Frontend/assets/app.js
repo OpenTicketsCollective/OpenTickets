@@ -4,7 +4,13 @@ const API = "/api";
 //Helper function to handle 403 errors
 const checkForForbidden = (response) => {
     if (response.status === 403) {
-        window.location.href = "/error/403";
+        window.location.href = "/Error/403";
+    }
+    if (response.status === 404) {
+        window.location.href = "/Error/404";
+    }
+    if (response.status === 500) {
+        window.location.href = "/Error/500";
     }
     return response;
 };
@@ -207,7 +213,7 @@ async function loadTicket() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token: getToken(), ip_address: getIP(), ticket_uuid })
-  }).then(checkForForbidden).then(checkForNotFound);
+  }).then(checkForForbidden);
   const data = await res.json();
   if (!data.success) {
     window.location.href = "/Error/404.html";

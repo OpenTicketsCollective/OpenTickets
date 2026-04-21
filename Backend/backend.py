@@ -8,9 +8,9 @@ from Backend_authlib import login_user, new_session, validate_session, create_us
 import Backend_ticketlib
 from Backend_dblib import execute_query
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 
-# Custom exception handler to hide detailed validation errors (security: prevent info disclosure)
+# Exception handler fallback to prevent information disclosure and provide a generic error
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(

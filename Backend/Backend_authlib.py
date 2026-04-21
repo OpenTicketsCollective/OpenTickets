@@ -121,7 +121,7 @@ def display_sessions (token, ip_address):
     if not authorized:
         return False, "Insufficient permissions"
     # Eventually I will use `order by id asc limit 50 offset 0` but for now it's easier to test with all sessions visible`
-    sessions = execute_query("SELECT BIN_TO_UUID(session_id) AS session_id, user_id, created_time, expire_time, ip_address, user_agent_header FROM Sessions WHERE is_valid = 1")
+    sessions = execute_query("SELECT BIN_TO_UUID(session_id) AS session_id, user_id, created_time, expire_time, ip_address, user_agent_header FROM Sessions WHERE is_valid = 1 and expire_time > NOW()")
     return True, sessions
 
 def get_user_info(token, ip_address):
@@ -140,7 +140,7 @@ def admin_reset_password(admin_token: str, ip_address: str, target_user_id: int)
 
     authorized, _ = checkauthlevel(requestedby, ["Admin"])
     if not authorized:
-        return False, "insufficient permissions"
+        return False, "Insufficient permissions"
     
     user_exists = execute_query("SELECT user_id FROM User WHERE user_id = %s", (target_user_id))
     if not user_exists:

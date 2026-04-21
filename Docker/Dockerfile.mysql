@@ -1,8 +1,9 @@
 # OpenTickets MySQL Database
 # Based on Docker Hardened Image (DHI) - MySQL 8.4.x
 # See: https://docs.docker.com/dhi/
+# EDIT: Temp moving to base image due to Docker hub outages - will switch back to DHI once resolved
 
-FROM dhi/mysql:8.4.8-debian13
+FROM mysql:8.4
 
 # Copy initialization schema
 COPY Docker/init-schema.sql /docker-entrypoint-initdb.d/01-init-schema.sql

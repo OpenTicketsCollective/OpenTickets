@@ -2,48 +2,83 @@
 
 An open source IT ticket management system designed to be fully self-hostable.
 
-> [!IMPORTANT]
-> OpenTickets is actively in development. While pre-releases may be available, they should not be used until a full release (Expected: Late April/Early May 2026).
-
 > [!NOTE]
-> **Development Status:** Planning
+> **Development Status:** In Active Development - Features and documentation are being continuously updated.
 
 ## Features
 
-- A proper README file (more features coming soon)
+- Self-hostable IT ticket management system
+- RESTful API backend with FastAPI
+- Modern web frontend
+- User authentication and authorization
+- Ticket tracking and management
+- Admin dashboard
 
-## Installation
+## Prerequisites
 
-Coming soon.
+### For Docker Deployment
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker CLI 
+### For Local Development
+- Python 3.12+ (Will move to python 3.15 soon but haven't tested yet)
 
-## Getting Started
+## Quick Start
 
-Before starting, ensure you navigate to the appropriate directories:
-- **Backend:** `OpenTickets/Backend`
-- **Frontend:** `OpenTickets/Frontend`
+### Option 1: Docker Deployment (Recommended)
 
-### Start the Backend Server
+1. **Install Docker Desktop** from https://www.docker.com/products/docker-desktop/ or Docker CLI 
 
-Navigate to the `Backend` directory and run:
+2. **Generate secrets** (from the project root):
+   ```bash
+   Docker\generate-secrets.sh
+   ```
 
+3. **Build and start the containers**:
+   ```bash
+   docker-compose build --no-cache
+   docker-compose up -d
+   ```
+
+4. **Access the application**:
+   - Hosted at: http://localhost or the manually set IP depending on configuration... Improvements to this system are pending. 
+
+5. **Default test account**:
+   - Email: `Admin@example.com`
+   - Password: `AdminPass000!`
+
+**To rebuild after making changes:**
 ```bash
-python run_https.py
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
 ```
 
-Then visit the API documentation in your browser:
-```
-http://127.0.0.1:8000/docs
-```
-
-### Start the Frontend Server
-
-Navigate to the `Frontend` directory and run:
-
+**View running containers:**
 ```bash
-python -m http.server 5000
+docker ps
 ```
 
-Then visit the admin page in your browser:
+## Local Development
+
+For local development, the Docker setup using nginx will handle localhost configuration automatically.
+
+
+## Development
+
+### Running Tests
+
+Navigate to the Backend directory and run:
+```bash
+pytest tests/
 ```
-http://127.0.0.1:5000/admin_page.html
-```
+
+## License
+# AGPLv3
+See [LICENSE](LICENSE) file for details.
+
+## Support & Contribution
+
+This is an open source project. Contributions are welcome!
+
+## Note
+
+The default test admin account will be replaced with a forced password reset on first login once that feature is fully implemented.

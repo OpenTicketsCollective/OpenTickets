@@ -64,7 +64,7 @@ Docker is required at this stage.
 
 
 ## License
-# AGPLv3
+- AGPLv3
 See [LICENSE](LICENSE) file for details.
 
 ## Support & Contribution

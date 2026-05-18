@@ -2,8 +2,8 @@
 
 An open source IT ticket management system designed to be fully self-hostable.
 
-> [!NOTE]
-> **Development Status:** In Active Development - Features and documentation are being continuously updated.
+> [!IMPORTANT]
+> **Development Status:** In Active Development - Features and documentation are being continuously updated. Features may be unfinished at this stage. This is an alpha. 
 
 ## Features
 

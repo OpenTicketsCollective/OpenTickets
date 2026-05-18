@@ -32,7 +32,7 @@ def login_user(email, password):
         return True, user_id, bool(force_change)
     except Exception as e:
         print(f"[LOGIN] Password verification failed for {email}: {type(e).__name__}")
-        return False, None
+        return False, None, False
 
 def new_session(user_id, ip_address, user_agent):
     if not isinstance(user_id, int):

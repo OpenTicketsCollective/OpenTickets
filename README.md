@@ -60,16 +60,8 @@ docker ps
 ## Local Development
 
 For local development, the Docker setup using nginx will handle localhost configuration automatically.
+Docker is required at this stage.
 
-
-## Development
-
-### Running Tests
-
-Navigate to the Backend directory and run:
-```bash
-pytest tests/
-```
 
 ## License
 # AGPLv3

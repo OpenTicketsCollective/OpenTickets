@@ -1,1 +1,6 @@
-# Add your Python package requirements here
+mysql-connector-python>=9.6.0,<10.0.0
+python-dotenv<1.2.1
+argon2-cffi<25.1.0
+pydantic<=2.12.5
+fastapi<=0.135.1
+hypercorn[h3]<=0.18.0

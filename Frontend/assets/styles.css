@@ -1,0 +1,313 @@
+:root {
+	--bg: #f6f8fa;
+	--card: #ffffff;
+	--accent: #2b7cff;
+	--muted: #666;
+}
+
+* {
+	box-sizing: border-box;
+	font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: #111;
+	-webkit-font-smoothing: antialiased;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #0a2540;
+	color: #fff;
+	padding: 12px 20px;
+	flex-wrap: nowrap;
+}
+
+header h1 {
+	margin: 0;
+	font-size: 18px;
+}
+
+nav {
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+	gap: 12px;
+	flex-wrap: nowrap;
+	flex-shrink: 0;
+}
+
+nav a {
+	color: #cfe5ff;
+	text-decoration: none;
+	flex-shrink: 0;
+}
+
+nav button {
+	flex-shrink: 0;
+}
+
+main {
+	padding: 20px;
+	width: 80%;
+	max-width: 1500px;
+	margin: 0 auto;
+}
+
+.card {
+	background: var(--card);
+	padding: 16px;
+	border-radius: 6px;
+	margin-bottom: 16px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+label {
+	display: block;
+	margin: 8px 0;
+}
+
+input,
+textarea,
+select {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font: inherit;
+}
+
+textarea {
+	min-height: 100px;
+}
+
+.actions {
+	margin-top: 10px;
+	display: flex;
+	justify-content: center;
+}
+
+button {
+	background: var(--accent);
+	border: none;
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.muted {
+	color: var(--muted);
+	font-size: 13px;
+}
+
+.row {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.col {
+	flex: 1;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 12px 0;
+}
+
+table thead {
+	background: #f0f4f8;
+	border-bottom: 2px solid #ddd;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+table th {
+	padding: 12px 8px;
+	text-align: left;
+	font-weight: 600;
+	color: #0a2540;
+	font-size: 13px;
+	text-transform: capitalize;
+}
+
+table td {
+	padding: 12px 8px;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+}
+
+table tbody tr:hover {
+	background: #f9f9f9;
+}
+
+.login-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.login-container .card {
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-container .card h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-container .card form {
+  text-align: left;
+}
+
+.login-container .card .actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.login-container .card .actions button {
+  width: 100%;
+  padding: 8px 12px;
+}
+
+input,
+textarea,
+select {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font: inherit;
+}
+
+button {
+	background: var(--accent);
+	border: none;
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: opacity 0.2s;
+}
+
+button:hover {
+	opacity: 0.9;
+}
+
+button:active {
+	opacity: 0.8;
+}
+
+.hidden {
+	display: none;
+}
+
+.login-error {
+	background: #fee;
+	border: 1px solid #fcc;
+	border-radius: 4px;
+	color: #c33;
+	padding: 12px;
+	margin-bottom: 16px;
+	font-size: 14px;
+}
+
+.login-error.hidden {
+	display: none;
+}
+
+.email-error input {
+	border-color: #d32f2f;
+	background: #ffebee;
+}
+
+.password-error input {
+	border-color: #d32f2f;
+	background: #ffebee;
+}
+
+.email-error input:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
+}
+
+.list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.list li {
+	padding: 8px;
+	border-bottom: 1px solid #f1f1f1;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th,
+td {
+	padding: 8px;
+	border-bottom: 1px solid #eee;
+	text-align: left;
+}
+
+.table-controls {
+	margin: 8px 0;
+}
+
+@media (max-width: 600px) {
+	.row {
+		flex-direction: column;
+	}
+
+	header {
+		padding: 10px;
+	}
+
+	main {
+		padding: 12px;
+	}
+}
+
+/* Text wrapping for ticket descriptions and comments */
+#tDesc,
+#comments li {
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: pre-wrap;
+}
+
+/* Title truncation in staff table */
+#ticketsTable tbody td:nth-child(2) {
+	max-width: 300px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Text wrapping for ticket title, descriptions and comments */
+#tTitle,
+#tDesc,
+#comments li {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+}

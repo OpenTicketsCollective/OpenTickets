@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OpenTickets — Submit Ticket</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  
+</head>
+<body>
+  <header>
+    <h1>OpenTickets</h1>
+  </header>
+<div class="login-container">
+  <section class="card" id="loginCard">
+    <h2>Login</h2>
+
+    <form id="loginForm" method="POST">
+      <label>
+        Email
+        <input name="email" type="email" required>
+      </label>
+      <label>
+        Password
+        <input name="password" type="password" required>
+      </label>
+      <div class="actions">
+        <button>Login</button>
+      </div>
+    </form>
+    <div id="loginMsg" class="muted">Please login with your active directory account.</div>
+    <div id="errorDiv" class="login-error hidden"></div>
+  </section>
+</div>
+<script src="assets/app.js"></script>
+<script src="assets/session.js"></script>

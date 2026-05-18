@@ -1,6 +1,24 @@
 # Python (./Backend)
-backend/.venv/
-# Node.js (./Frontend)
-frontend/node_modules/
-frontend/dist/
-frontend/.env
+Backend/.venv/
+Backend/__pycache__/
+Backend/tests/__pycache__/
+Backend/.pytest_cache/
+Backend/.env
+
+# Frontend (./Frontend)
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Docker runtime data
+certs/
+mysql-data/
+
+# IDE
+.vscode/
+.idea/

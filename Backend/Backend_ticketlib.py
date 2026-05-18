@@ -1,0 +1,101 @@
+from Backend_dblib import execute_query
+from Backend_authlib import validate_session, checkauthlevel
+
+
+def create_ticket(token, ip_address, title, description, priority_code):
+	valid, requestedby = validate_session(token, ip_address)
+	if not valid:
+		# session invalid; reject the operation
+		return False, "Invalid session"
+
+	if not isinstance(title, str) or not isinstance(description, str):
+		raise TypeError("title and description must both be strings")
+
+	# Validate priority code
+	valid_priorities = ["L", "M", "H", "C"]
+	if priority_code not in valid_priorities:
+		return False, "Invalid priority code"
+
+	uuid_row = execute_query("SELECT UUID() AS ticket_uuid")
+	if not uuid_row:
+		return False, "Failed to generate ticket UUID"
+	ticket_uuid = uuid_row[0]["ticket_uuid"]
+
+	# session is valid; proceed with creating the ticket
+	execute_query("INSERT INTO ActiveTickets (ticket_number, created_by, ticket_name, contains_flagged_url, ticket_description, priority_code) VALUES (UUID_TO_BIN(%s), %s, %s, %s, %s, %s)", (ticket_uuid, requestedby, title, 0, description, priority_code))
+	return True, ticket_uuid
+
+
+def _can_access_ticket(requestedby, ticket_uuid):
+	ticket_creator_row = execute_query("SELECT created_by FROM ActiveTickets WHERE ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
+	if not ticket_creator_row:
+		return False, "Ticket not found"
+	ticket_creator_id = ticket_creator_row[0]["created_by"]
+	if requestedby == ticket_creator_id:
+		return True, None
+	authorized, _ = checkauthlevel(requestedby, ["Admin", "L1", "L2"])
+	if not authorized:
+		return False, "Insufficient permissions"
+	return True, None
+
+def create_comment(token, ip_address, ticket_uuid, comment_text):
+	valid, requestedby = validate_session(token, ip_address)
+	if not valid:
+		# session invalid; reject the operation
+		return False, "Invalid session"
+
+	has_access, access_error = _can_access_ticket(requestedby, ticket_uuid)
+	if not has_access:
+		return False, access_error
+
+	if not isinstance(comment_text, str):
+		raise TypeError("comment_text must be a string")
+
+	# session is valid; proceed with creating the comment
+	execute_query("INSERT INTO TicketComments (comment_number, ticket_number, created_by, comment_description, contains_flagged_url) VALUES (UUID_TO_BIN(UUID()), UUID_TO_BIN(%s), %s, %s, %s)", (ticket_uuid, requestedby, comment_text, 0))
+	return True, "Comment created successfully"
+
+def get_ticket_details(token, ip_address, ticket_uuid):
+	valid, requestedby = validate_session(token, ip_address)
+	if not valid:
+		# session invalid; reject the operation
+		return False, "Invalid session"
+
+	has_access, access_error = _can_access_ticket(requestedby, ticket_uuid)
+	if not has_access:
+		return False, access_error
+
+	# session is valid; proceed with fetching the ticket details
+	try:
+		ticket_details = execute_query("SELECT BIN_TO_UUID(ActiveTickets.ticket_number) AS ticket_uuid, ActiveTickets.created_by, ActiveTickets.ticket_name, ActiveTickets.contains_flagged_url, ActiveTickets.ticket_description, ActiveTickets.status_code, ActiveTickets.priority_code, ActiveTickets.create_time, User.first_name, User.last_name FROM ActiveTickets JOIN User ON ActiveTickets.created_by = User.user_id WHERE ActiveTickets.ticket_number = UUID_TO_BIN(%s)", (ticket_uuid,))
+		if not ticket_details:
+			return False, "Ticket not found"
+		
+		# Fetch all comments for this ticket
+		comments = execute_query("SELECT BIN_TO_UUID(TicketComments.comment_number) AS comment_uuid, User.first_name, User.last_name, TicketComments.comment_description, TicketComments.create_time FROM TicketComments JOIN User ON TicketComments.created_by = User.user_id WHERE TicketComments.ticket_number = UUID_TO_BIN(%s) ORDER BY TicketComments.create_time ASC", (ticket_uuid,))
+		
+		return True, {
+			"ticket": ticket_details[0],
+			"comments": comments if comments else []
+		}
+	except Exception as e:
+		# Catch any database errors (invalid UUID format, etc.) and treat as ticket not found
+		return False, "Ticket not found"
+
+def get_user_tickets(token, ip_address):
+	valid, user_id = validate_session(token, ip_address)
+	if not valid:
+		# session invalid; reject the operation
+		return False, "Invalid session"
+
+	# Check if user is staff (L1, L2, Admin) or regular user
+	is_staff, access_level = checkauthlevel(user_id, ["Admin", "L1", "L2"])
+	
+	if is_staff:
+		# Staff/Admin: return all tickets
+		tickets = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, ticket_description, status_code, priority_code, create_time FROM ActiveTickets ORDER BY create_time DESC")
+	else:
+		# Regular user: return only their own tickets
+		tickets = execute_query("SELECT BIN_TO_UUID(ticket_number) AS ticket_uuid, created_by, ticket_name, ticket_description, status_code, priority_code, create_time FROM ActiveTickets WHERE created_by = %s ORDER BY create_time DESC", (user_id,))
+	
+	return True, tickets if tickets else []

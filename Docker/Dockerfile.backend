@@ -1,0 +1,8 @@
+FROM python:alpine3.23
+
+COPY Backend /app/
+WORKDIR /app
+
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
+CMD ["python", "run_https.py"]

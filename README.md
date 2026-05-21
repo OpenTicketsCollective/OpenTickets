@@ -6,7 +6,8 @@ An open source IT ticket management system designed to be fully self-hostable.
 ![GitHub License](https://img.shields.io/github/license/OpenTicketsCollective/OpenTickets)
 
 > [!IMPORTANT]
-> **Development Status:** In Active Development - Features and documentation are being continuously updated. Features may be unfinished at this stage. This is an alpha. 
+> This is an Alpha. Many features are not fully implimented or have bugs. (See [issues](https://github.com/OpenTicketsCollective/OpenTickets/issues)) I am actively working through the issue backlog. 
+> I almost have all the know issues triaged and tracked in which case I will then work on better design docs and planning materials. PR's are welcome. Issues with ideas are also welcome. 
 <img width="1914" height="1061" alt="image" src="https://github.com/user-attachments/assets/3ef4b53d-79a4-44a7-b378-448ba3a8d1cf" />
 
 ## Features

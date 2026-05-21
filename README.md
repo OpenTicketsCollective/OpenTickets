@@ -62,6 +62,10 @@ docker-compose up -d
 docker ps
 ```
 
+> [!NOTE]
+> The default test admin account will be replaced with a forced password reset on first login once that feature is fully implemented.
+> See: [Issue #3](https://github.com/OpenTicketsCollective/OpenTickets/issues/3)
+
 ## Local Development
 
 For local development, the Docker setup using nginx will handle localhost configuration automatically.
@@ -75,7 +79,3 @@ See [LICENSE](LICENSE) file for details.
 ## Support & Contribution
 
 This is an open source project. Contributions are welcome!
-
-## Note
-
-The default test admin account will be replaced with a forced password reset on first login once that feature is fully implemented.

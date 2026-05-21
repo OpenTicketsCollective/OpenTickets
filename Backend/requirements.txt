@@ -1,5 +1,5 @@
 mysql-connector-python>=9.6.0,<10.0.0
-python-dotenv<1.2.1
+python-dotenv<1.2.2
 argon2-cffi<25.1.0
 pydantic<=2.12.5
 fastapi<=0.135.1
